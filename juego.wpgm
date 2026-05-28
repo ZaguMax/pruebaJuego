@@ -1,0 +1,76 @@
+import wollok.game.*
+import personaje.*
+import teclado.*
+import enemigos.*
+import objetos.*
+
+program rpg {
+  game.width(18)
+  game.height(10)
+  game.cellSize(80)
+  game.title("Mi RPG")
+  game.boardGround("mapa1.png")
+
+  const fondoMusic = game.sound("fondo" + (1..12).anyOne() +  ".mp3")
+  fondoMusic.shouldLoop(true)
+  fondoMusic.volume(0.3)
+  game.schedule(1000, { fondoMusic.play()} )
+  
+  const antorcha = new AntorchaArr(position = game.at(3,9)) 
+  mapaParedes.agregar(antorcha)
+  game.addVisual(antorcha)
+  antorcha.animar()
+
+  //const antorcha2 = new AntorchaArr(position = game.at(6,9)) 
+  //game.addVisual(antorcha2)
+  //antorcha2.animar()
+
+  //const antorcha3 = new AntorchaAbj(position = game.at(3,1)) 
+  //game.addVisual(antorcha3)
+  //antorcha3.animar()
+
+  //const antorcha4 = new AntorchaAbj(position = game.at(6,1)) 
+  //game.addVisual(antorcha4)
+  //antorcha4.animar()
+
+  colisiones.cargar() 
+  game.addVisual(personaje)
+
+  controles.configurar()
+
+  game.start()
+}
+
+object colisiones{
+
+  const mapaData = [
+  [0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1],
+  [1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1],
+  [0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1]
+  ]
+
+  method cargar() {
+  var y = mapaData.size() - 1
+  mapaData.forEach({ fila =>
+    var x = 0
+    fila.forEach({ celda =>
+      if (celda == 1) { self.crearPared(x, y) }
+      x = x + 1
+    })
+    y = y - 1
+  })
+}
+
+method crearPared(x, y) {
+  const pared = new Pared(position = game.at(x, y))
+  mapaParedes.agregar(pared)
+}
+}
+
