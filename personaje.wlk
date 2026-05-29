@@ -48,7 +48,12 @@ object personaje {
   }
 
   method atacar(dir) {
-    if (self.puedeAtacar()) {
+    const deltas = self.deltasDe(dir)
+    posOrigenX = myPosition.x()
+    posOrigenY = myPosition.y()
+    posDestinoX = posOrigenX + deltas.get(0)
+    posDestinoY = posOrigenY + deltas.get(1)
+    if (self.puedeAtacar() && !mapaParedes.hayEn(posDestinoX, posDestinoY)) {
       const deltas = self.deltasDe(dir)
       atacando = true
       frameActual = 0
@@ -63,6 +68,44 @@ object personaje {
       const sword = game.sound("sword" + (1..3).anyOne() + ".mp3")
       sword.volume(0.3)
       sword.play()
+
+      tileA = new TileTransicion(position = game.at(posOrigenX, posOrigenY), image = "swrd_" + dir + "_a_1.png")
+      tileB = new TileTransicion(position = game.at(posDestinoX, posDestinoY), image = "swrd_" + dir + "_b_1.png")
+      game.addVisual(tileA)
+      game.addVisual(tileB)
+
+      game.onTick(6, "ataque", {
+        frameActual = frameActual + 1
+        if (frameActual <= 9) {
+          tileA.image("swrd_" + dirActual + "_a_" + frameActual + ".png")
+          tileB.image("swrd_" + dirActual + "_b_" + frameActual + ".png")
+        } else {
+          game.removeVisual(tileA)
+          game.removeVisual(tileB)
+          tileA = null
+          tileB = null
+          game.removeTickEvent("ataque")
+          atacando = false
+        }
+      })
+    }
+    else if (self.puedeAtacar() && mapaParedes.hayEn(posDestinoX, posDestinoY)) {
+      const deltas = self.deltasDe(dir)
+      atacando = true
+      frameActual = 0
+      dirActual = dir
+      posOrigenX = myPosition.x()
+      posOrigenY = myPosition.y()
+      posDestinoX = posOrigenX + deltas.get(0)
+      posDestinoY = posOrigenY + deltas.get(1)
+
+      const sword = game.sound("swordMetal.mp3")
+      sword.volume(0.3)
+      sword.play()
+    
+      const sword2 = game.sound("sword" + (1..3).anyOne() + ".mp3")
+      sword2.volume(0.3)
+      sword2.play()
 
       tileA = new TileTransicion(position = game.at(posOrigenX, posOrigenY), image = "swrd_" + dir + "_a_1.png")
       tileB = new TileTransicion(position = game.at(posDestinoX, posDestinoY), image = "swrd_" + dir + "_b_1.png")
@@ -127,12 +170,10 @@ object personaje {
 }
 
 object mapaParedes {
-  const objetos = []
   const claves = []
   
-  method agregar(obj) {
-    objetos.add(obj)
-    claves.add("" + obj.position().x() + "," + obj.position().y())
+  method agregar(x, y) {
+    claves.add("" + x + "," + y)
   }
   
   method hayEn(x, y) = claves.contains("" + x + "," + y)

@@ -1,8 +1,3 @@
-class Pared {
-    var property position
-    const property image = "transparente.png"
-}
-
 class AntorchaArr{
     var property position
     var frameActual = 0
