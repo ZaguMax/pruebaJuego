@@ -1,5 +1,7 @@
 import wollok.game.*
 import personaje.*
+import juego.*
+
 
 object controles {
   method configurar() {

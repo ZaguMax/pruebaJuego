@@ -33,6 +33,16 @@ program rpg {
   game.addVisual(antorcha4)
   antorcha4.animar()
 
+  const pincho = new Pinchos(position = game.at(4,3))
+  game.addVisual(pincho)
+  keyboard.l().onPressDo({pincho.cerrar()})
+  keyboard.k().onPressDo({pincho.abrir()})
+
+  const palanca = new Palanca(position = game.at(3,3), listaObjetos = [pincho])
+  game.addVisual(palanca)
+  keyboard.o().onPressDo({palanca.cerrar()})
+  keyboard.p().onPressDo({palanca.abrir()})
+
   sapos.cargar()
   colisiones.cargar() 
   game.addVisual(personaje)

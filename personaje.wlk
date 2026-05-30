@@ -47,6 +47,10 @@ object personaje {
     else { return [0, -1] }
   }
 
+  method interact() {
+    
+  }
+
   method atacar(dir) {
     const deltas = self.deltasDe(dir)
     posOrigenX = myPosition.x()

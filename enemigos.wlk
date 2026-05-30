@@ -84,12 +84,15 @@ class Sapo{
                 if (frameActual <= 21) {
                     tileA.image("sapo_" + dirActual + "_a_" + frameActual + ".png")
                     tileB.image("sapo_" + dirActual + "_b_" + frameActual + ".png")
-                } else {
+                    if (frameActual == 10) {
+                        myPosition = game.at(posDestinoX, posDestinoY)
+                    }
+                } 
+                else {
                     game.removeVisual(tileA)
                     game.removeVisual(tileB)
                     tileA = null
                     tileB = null
-                    myPosition = game.at(posDestinoX, posDestinoY)
                     image = "sapo_" + dirActual + ".png"
                     moviendose = false
                     espera = 20
