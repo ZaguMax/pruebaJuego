@@ -35,16 +35,13 @@ program rpg {
 
   const pincho = new Pinchos(position = game.at(4,3))
   game.addVisual(pincho)
-  keyboard.l().onPressDo({pincho.cerrar()})
-  keyboard.k().onPressDo({pincho.abrir()})
 
   const palanca = new Palanca(position = game.at(3,3), listaObjetos = [pincho])
   game.addVisual(palanca)
-  keyboard.o().onPressDo({palanca.cerrar()})
-  keyboard.p().onPressDo({palanca.abrir()})
+  mapaPalancas.agregar(palanca)
 
   sapos.cargar()
-  colisiones.cargar() 
+  objetos.cargar() 
   game.addVisual(personaje)
 
   controles.configurar()
@@ -52,7 +49,7 @@ program rpg {
   game.start()
 }
 
-object colisiones {
+object objetos {
 
   const mapaData = [
   [0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -61,7 +58,7 @@ object colisiones {
   [1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1],
   [1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1],
   [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-  [1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1],
+  [1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1],
   [1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1],
   [0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1]

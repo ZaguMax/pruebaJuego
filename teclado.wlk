@@ -10,5 +10,6 @@ object controles {
     keyboard.up().onPressDo({ personaje.moverArriba() })
     keyboard.down().onPressDo({ personaje.moverAbajo() })
     keyboard.x().onPressDo({personaje.ataque()})
+    keyboard.z().onPressDo({personaje.interact()})
   }
 }

@@ -33,6 +33,13 @@ object personaje {
 
   method puedeAtacar() = !atacando && !moviendose
 
+  method puedeInteractuar(dir){
+    const deltas = self.deltasDe(dir)
+    const nx = myPosition.x() + deltas.get(0)
+    const ny = myPosition.y() + deltas.get(1)
+    return !atacando && !moviendose && mapaPalancas.hayEn(nx, ny)
+    } 
+
   method puedeMover(dir) {
     const deltas = self.deltasDe(dir)
     const nx = myPosition.x() + deltas.get(0)
@@ -48,7 +55,12 @@ object personaje {
   }
 
   method interact() {
-    
+    if (self.puedeInteractuar(dirActual)){
+      const deltas = self.deltasDe(dirActual)
+      const nx = myPosition.x() + deltas.get(0)
+      const ny = myPosition.y() + deltas.get(1)
+      mapaPalancas.claves().find({palanca => palanca.position() == game.at(nx,ny)}).actuar()
+    }
   }
 
   method atacar(dir) {
@@ -181,6 +193,17 @@ object mapaParedes {
   }
   
   method hayEn(x, y) = claves.contains("" + x + "," + y)
+}
+
+object mapaPalancas {
+  const property claves = []
+  method agregar(palanca) {
+    claves.add(palanca)
+  }
+
+  method hayEn(x, y){
+    return claves.any({palanca => palanca.position() == game.at(x, y)})
+  }
 }
 
 object mapaEnemigos {

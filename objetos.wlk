@@ -81,6 +81,16 @@ class Palanca{
     var property modo = 1
     var frameActual = 0
     var property image = "PalancaCerrada.png"
+
+    method actuar() {
+        if (modo == 1){
+            self.abrir()
+        }
+        else {
+            self.cerrar()
+        }
+    }
+
     method abrir() {
         if (modo == 1 && puedeCerrar){frameActual = 0
             game.onTick(100, "PalancaAbriendo", {
