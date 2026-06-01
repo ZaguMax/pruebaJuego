@@ -1,5 +1,5 @@
+import juego.spawn
 import enemigos.*
-import juego.*
 import teclado.*
 import wollok.game.*
 import objetos.*
@@ -9,6 +9,7 @@ object personaje {
   var myPosition = game.at(6, 5)
   var property image = "pj_abj.png"
 
+  var property monedas = 0
   var moviendose = false
   var atacando = false
   var frameActual = 0
@@ -32,7 +33,7 @@ object personaje {
   method ataque() { self.atacar(dirActual) }
 
   method puedeAtacar() = !atacando && !moviendose
-
+  
   method puedeInteractuar(dir){
     const deltas = self.deltasDe(dir)
     const nx = myPosition.x() + deltas.get(0)
@@ -44,7 +45,7 @@ object personaje {
     const deltas = self.deltasDe(dir)
     const nx = myPosition.x() + deltas.get(0)
     const ny = myPosition.y() + deltas.get(1)
-    return !atacando && !moviendose && !mapaParedes.hayEn(nx, ny)
+    return !atacando && !moviendose && !mapaParedes.hayEn(nx, ny) && !spawn.spawning()
   }
 
   method deltasDe(dir) {
@@ -167,7 +168,11 @@ object personaje {
         if (frameActual <= 21) {
           tileA.image("pj_" + dirActual + "_a_" + frameActual + ".png")
           tileB.image("pj_" + dirActual + "_b_" + frameActual + ".png")
-        } else {
+        } 
+        else {
+          if (mapaMonedas.hayEn(posDestinoX, posDestinoY)) {
+            mapaMonedas.monedaEn(posDestinoX, posDestinoY).agarrar()
+          }
           game.removeVisual(tileA)
           game.removeVisual(tileB)
           tileA = null
@@ -191,6 +196,10 @@ object mapaParedes {
   method agregar(x, y) {
     claves.add("" + x + "," + y)
   }
+
+  method quitar(x, y) {
+    claves.remove("" + x + "," + y)
+  }
   
   method hayEn(x, y) = claves.contains("" + x + "," + y)
 }
@@ -203,6 +212,24 @@ object mapaPalancas {
 
   method hayEn(x, y){
     return claves.any({palanca => palanca.position() == game.at(x, y)})
+  }
+}
+
+object mapaMonedas {
+  const property monedas = []
+
+  method agregar(moneda) {
+    monedas.add(moneda)
+  }
+
+  method remover(moneda) {
+    monedas.remove(moneda)
+  }
+
+  method monedaEn(x, y) = monedas.find({ m => m.position().x() == x && m.position().y() == y })
+
+  method hayEn(x, y){
+    return monedas.any({moneda => moneda.position() == game.at(x, y)})
   }
 }
 

@@ -1,3 +1,5 @@
+import personaje.*
+
 class AntorchaArr{
     var property position
     var frameActual = 0
@@ -40,6 +42,7 @@ class Pinchos{
     var property image = "PinchosCerrados.png"
     method abrir() {
         if (modo == 1 && puedeCerrar){frameActual = 0
+        mapaEnemigos.enemigosEn(position.x(), position.y()).forEach({ e => e.matarSapo() })
             game.onTick(100, "PinchoAbriendo", {
                 frameActual = frameActual + 1
                 if (frameActual < 7) {
@@ -49,6 +52,7 @@ class Pinchos{
                     game.removeTickEvent("PinchoAbriendo")
                     modo = 0
                     self.image("PinchosAbiertos.png")
+                    mapaParedes.agregar(position.x(), position.y())
                 }
             })
             puedeCerrar = false
@@ -67,6 +71,7 @@ class Pinchos{
                     game.removeTickEvent("PinchoCerrando")
                     modo = 1
                     self.image("PinchosCerrados.png")
+                    mapaParedes.quitar(position.x(), position.y())
                 }
             })
             puedeCerrar = true
@@ -129,4 +134,54 @@ class Palanca{
             puedeCerrar = true
         }
     }
+    
+}
+
+class Coins{
+    var property position
+    var frameActual = 0
+    var property image = "coin_1.png"
+    method animar() {
+        game.onTick(100, "Coin", {
+        frameActual = frameActual + 1
+            if (frameActual < 7) {
+                self.image("coin_" + frameActual + ".png")
+            } 
+            else {
+                frameActual = 0
+            }
+        })
+    }
+
+    method agarrar() {
+        game.removeVisual(self)
+        personaje.monedas(personaje.monedas() + 1)
+        contadorMonedas.actualizar()
+        mapaMonedas.remover(self)
+    }
+}
+
+object contadorMonedas{
+    var decenas = 0
+    var unidades = 0   
+    const decenasVisual = new TileTransicion(image = "0.png", position = game.at(16, 9))
+    const unidadesVisual = new TileTransicion(image = "0.png", position = game.at(17, 9))
+    const monedasVisual = new TileTransicion(image = "x.png", position = game.at(14, 9))
+
+    method cargar() {
+        game.addVisual(decenasVisual)
+        game.addVisual(unidadesVisual)
+        game.addVisual(monedasVisual)
+        }
+
+    method actualizar(){
+        unidades = unidades + 1
+        if (unidades == 10){
+            unidades = 0
+            decenas = decenas + 1
+        }
+        decenasVisual.image("" + decenas + ".png")
+        unidadesVisual.image("" + unidades + ".png")
+    }
+
 }

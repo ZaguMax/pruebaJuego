@@ -5,6 +5,8 @@ import teclado.*
 import enemigos.*
 import objetos.*
 
+
+
 program rpg {
   game.width(18)
   game.height(10)
@@ -29,9 +31,28 @@ program rpg {
   game.addVisual(antorcha3)
   antorcha3.animar()
 
+  
+
+
   const antorcha4 = new AntorchaAbj(position = game.at(6,1)) 
   game.addVisual(antorcha4)
   antorcha4.animar()
+
+  const coin = new Coins(position = game.at(5,4)) 
+  game.addVisual(coin)
+  mapaMonedas.agregar(coin)
+  coin.animar()
+
+  const coin2 = new Coins(position = game.at(6,4)) 
+  game.addVisual(coin2)
+  mapaMonedas.agregar(coin2)
+  coin2.animar()
+
+  const coin3 = new Coins(position = game.at(7,4)) 
+  game.addVisual(coin3)
+  mapaMonedas.agregar(coin3)
+  coin3.animar()
+
 
   const pincho = new Pinchos(position = game.at(4,3))
   game.addVisual(pincho)
@@ -42,7 +63,8 @@ program rpg {
 
   sapos.cargar()
   objetos.cargar() 
-  game.addVisual(personaje)
+  spawn.animar()
+  contadorMonedas.cargar()
 
   controles.configurar()
 
@@ -108,4 +130,34 @@ object sapos {
         y = y - 1
     })
 }
+}
+
+object spawn{
+    const x = 6
+    const y = 5
+    var property spawning = true
+    var property position = game.at(x,y)
+    var frameActual = 0
+    var property image = "Spawn_1.png"
+    method animar() {
+      game.addVisual(self)
+      const spawn = game.sound("spawn.mp3")
+      spawn.volume(0.3)
+      spawn.play()
+
+        game.onTick(100, "Spawn", {
+        frameActual = frameActual + 1
+            if (frameActual < 14) {
+                self.image("Spawn_" + frameActual + ".png")
+            } 
+            else {
+                frameActual = 0
+                game.addVisual(personaje)
+                game.removeTickEvent("Spawn")
+                game.removeVisual(self)
+                personaje.position(game.at(x+1, y))
+                spawning = false
+            }
+        })
+    }
 }
