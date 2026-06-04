@@ -1,4 +1,5 @@
 import personaje.*
+import gestorAnimacion.*
 
 class AntorchaArr{
     var property position

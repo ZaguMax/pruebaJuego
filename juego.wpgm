@@ -50,7 +50,8 @@ program rpg {
   mur.iniciarMovimiento("arr")
 
 
-  sapos.cargar()
+  //sapos.cargar()
+  gestorDeEnemigos.comenzarMovimiento()
   objetos.cargar() 
   spawn.animar()
   contadorMonedas.cargar()
@@ -116,10 +117,9 @@ object sapos {
         var x = 0
         fila.forEach({ celda =>
             if (celda == 1) {
-                const sapo = new Sapo(myPosition = game.at(x, y))
+                const sapo = new Sapo(name = "sapo", position = game.at(x, y))
                 game.addVisual(sapo)
                 mapaEnemigos.agregar(sapo)
-                sapo.iniciarMovimiento()
             }
             x = x + 1
         })

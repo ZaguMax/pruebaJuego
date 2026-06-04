@@ -3,6 +3,7 @@ import enemigos.*
 import teclado.*
 import wollok.game.*
 import objetos.*
+import gestorAnimacion.*
 
 object personaje {
 
@@ -242,25 +243,3 @@ object mapaEnemigos {
   method enemigosEn(x, y) = objetos.filter({ o => o.position().x() == x && o.position().y() == y })
 }
 
-object posicionesDestino{
-  const claves = []
-  
-  method agregar(x, y) {
-    claves.add("" + x + "," + y)
-  }
-
-  method quitar(x, y) {
-    claves.remove("" + x + "," + y)
-  }
-  
-  method hayEn(x, y) = claves.contains("" + x + "," + y)
-}
-
-class TileTransicion {
-  var property position
-  var property image
-
-  method image(nuevaImagen) {
-    image = nuevaImagen
-  }
-}
