@@ -39,7 +39,7 @@ object personaje {
     const nx = myPosition.x() + deltas.get(0)
     const ny = myPosition.y() + deltas.get(1)
     return !atacando && !moviendose && mapaPalancas.hayEn(nx, ny)
-    } 
+  } 
 
   method puedeMover(dir) {
     const deltas = self.deltasDe(dir)
@@ -80,7 +80,7 @@ object personaje {
       posDestinoX = posOrigenX + deltas.get(0)
       posDestinoY = posOrigenY + deltas.get(1)
 
-      mapaEnemigos.enemigosEn(posDestinoX, posDestinoY).forEach({ e => e.matarSapo() })
+      mapaEnemigos.enemigosEn(posDestinoX, posDestinoY).forEach({ e => e.matar() })
 
       const sword = game.sound("sword" + (1..3).anyOne() + ".mp3")
       sword.volume(0.3)
@@ -163,8 +163,8 @@ object personaje {
       game.addVisual(tileB)
       image = "transparente.png"
 
-      game.onTick(30, "movimiento", {
-        frameActual = frameActual + 1
+      game.onTick(15, "movimiento", {
+        frameActual = frameActual + 2
         if (frameActual <= 21) {
           tileA.image("pj_" + dirActual + "_a_" + frameActual + ".png")
           tileB.image("pj_" + dirActual + "_b_" + frameActual + ".png")
@@ -234,12 +234,26 @@ object mapaMonedas {
 }
 
 object mapaEnemigos {
-  const objetos = []
+  const property objetos = []
   method agregar(obj) { objetos.add(obj) }
   method remover(obj) { objetos.remove(obj) }
   method contiene(obj) = objetos.contains(obj)
   method hayEn(x, y) = objetos.any({ o => o.position().x() == x && o.position().y() == y })
   method enemigosEn(x, y) = objetos.filter({ o => o.position().x() == x && o.position().y() == y })
+}
+
+object posicionesDestino{
+  const claves = []
+  
+  method agregar(x, y) {
+    claves.add("" + x + "," + y)
+  }
+
+  method quitar(x, y) {
+    claves.remove("" + x + "," + y)
+  }
+  
+  method hayEn(x, y) = claves.contains("" + x + "," + y)
 }
 
 class TileTransicion {

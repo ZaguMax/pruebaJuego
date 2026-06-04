@@ -31,35 +31,24 @@ program rpg {
   game.addVisual(antorcha3)
   antorcha3.animar()
 
-  
-
-
   const antorcha4 = new AntorchaAbj(position = game.at(6,1)) 
   game.addVisual(antorcha4)
   antorcha4.animar()
 
-  const coin = new Coins(position = game.at(5,4)) 
-  game.addVisual(coin)
-  mapaMonedas.agregar(coin)
-  coin.animar()
-
-  const coin2 = new Coins(position = game.at(6,4)) 
-  game.addVisual(coin2)
-  mapaMonedas.agregar(coin2)
-  coin2.animar()
-
-  const coin3 = new Coins(position = game.at(7,4)) 
-  game.addVisual(coin3)
-  mapaMonedas.agregar(coin3)
-  coin3.animar()
-
-
   const pincho = new Pinchos(position = game.at(4,3))
   game.addVisual(pincho)
 
-  const palanca = new Palanca(position = game.at(3,3), listaObjetos = [pincho])
+  const pincho2 = new Pinchos(position = game.at(4,4))
+  game.addVisual(pincho2)
+
+  const palanca = new Palanca(position = game.at(3,3), listaObjetos = [pincho, pincho2])
   game.addVisual(palanca)
   mapaPalancas.agregar(palanca)
+
+  const mur = new Murcielago(myPosition = game.at(10, 5))
+  game.addVisual(mur)
+  mur.iniciarMovimiento("arr")
+
 
   sapos.cargar()
   objetos.cargar() 
@@ -67,6 +56,7 @@ program rpg {
   contadorMonedas.cargar()
 
   controles.configurar()
+
 
   game.start()
 }
@@ -77,12 +67,12 @@ object objetos {
   [0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   [1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
   [1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-  [1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1],
+  [1, 0, 0, 2, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1],
   [1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1],
-  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-  [1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1],
-  [1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1],
-  [0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+  [1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 1],
+  [1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 2, 0, 2, 1],
+  [1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 2, 2, 1],
+  [0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 2, 1],
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1]
   ]
 
@@ -92,6 +82,12 @@ object objetos {
       var x = 0
       fila.forEach({ celda =>
         if (celda == 1) { mapaParedes.agregar(x, y) }
+        if (celda == 2) {
+          const moneda = new Coins(position = game.at(x, y))
+          mapaMonedas.agregar(moneda)
+          game.addVisual(moneda)
+          moneda.animar()
+          }
         x = x + 1
       })
       y = y - 1

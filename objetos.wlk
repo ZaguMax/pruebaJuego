@@ -42,7 +42,7 @@ class Pinchos{
     var property image = "PinchosCerrados.png"
     method abrir() {
         if (modo == 1 && puedeCerrar){frameActual = 0
-        mapaEnemigos.enemigosEn(position.x(), position.y()).forEach({ e => e.matarSapo() })
+        mapaEnemigos.enemigosEn(position.x(), position.y()).forEach({ e => e.matar() })
             game.onTick(100, "PinchoAbriendo", {
                 frameActual = frameActual + 1
                 if (frameActual < 7) {
@@ -81,7 +81,7 @@ class Pinchos{
 
 class Palanca{
     var property position
-    var property listaObjetos
+    var property listaObjetos 
     var puedeCerrar = true
     var property modo = 1
     var frameActual = 0
@@ -158,6 +158,9 @@ class Coins{
         personaje.monedas(personaje.monedas() + 1)
         contadorMonedas.actualizar()
         mapaMonedas.remover(self)
+        if (mapaMonedas.monedas().isEmpty()) {
+                game.removeTickEvent("Coin")
+            }
     }
 }
 
