@@ -1,5 +1,10 @@
 import personaje.*
+import juego.mapaObjetos
+import enemigos.*
 
+class Collision{
+    var property position
+}
 class AntorchaArr{
     var property position
     var frameActual = 0
@@ -37,12 +42,13 @@ class AntorchaAbj{
 class Pinchos{
     var puedeCerrar = true
     var property position
+    const collision = new Collision(position = position)
     var property modo = 1
     var frameActual = 0
     var property image = "PinchosCerrados.png"
     method abrir() {
         if (modo == 1 && puedeCerrar){frameActual = 0
-        mapaEnemigos.enemigosEn(position.x(), position.y()).forEach({ e => e.matar() })
+        mapaObjetos.enemigosEn(position.x(), position.y()).forEach({ e => e.matar() })
             game.onTick(100, "PinchoAbriendo", {
                 frameActual = frameActual + 1
                 if (frameActual < 7) {
@@ -52,7 +58,7 @@ class Pinchos{
                     game.removeTickEvent("PinchoAbriendo")
                     modo = 0
                     self.image("PinchosAbiertos.png")
-                    mapaParedes.agregar(position.x(), position.y())
+                    mapaObjetos.paredes().add(collision)
                 }
             })
             puedeCerrar = false
@@ -71,7 +77,7 @@ class Pinchos{
                     game.removeTickEvent("PinchoCerrando")
                     modo = 1
                     self.image("PinchosCerrados.png")
-                    mapaParedes.quitar(position.x(), position.y())
+                    mapaObjetos.paredes().remove(collision)
                 }
             })
             puedeCerrar = true
@@ -109,7 +115,7 @@ class Palanca{
                     self.image("PalancaAbierta.png")
                 }
             })
-            listaObjetos.forEach({objeto => objeto.abrir()})
+            listaObjetos.forEach({objeto => mapaObjetos.pinchos().get(objeto).abrir()})
             puedeCerrar = false
         }
         
@@ -130,7 +136,7 @@ class Palanca{
                 }
             })
             
-            listaObjetos.forEach({objeto => objeto.cerrar()})
+            listaObjetos.forEach({objeto => mapaObjetos.pinchos().get(objeto).cerrar()})
             puedeCerrar = true
         }
     }
@@ -157,8 +163,8 @@ class Coins{
         game.removeVisual(self)
         personaje.monedas(personaje.monedas() + 1)
         contadorMonedas.actualizar()
-        mapaMonedas.remover(self)
-        if (mapaMonedas.monedas().isEmpty()) {
+        mapaObjetos.monedas().remove(self)
+        if (mapaObjetos.monedas().isEmpty()) {
                 game.removeTickEvent("Coin")
             }
     }

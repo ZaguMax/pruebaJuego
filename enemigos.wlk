@@ -1,4 +1,4 @@
-import juego.*
+import juego.mapaObjetos
 import teclado.*
 import wollok.game.*
 import objetos.*
@@ -6,7 +6,7 @@ import personaje.*
 
 class Sapo{
 
-    var myPosition = game.at(6, 5)
+    var property position = game.at(6, 5)
     var property image = "sapo_abj.png"
 
     var frameActual = 0
@@ -20,9 +20,6 @@ class Sapo{
     var posDestinoX = 0
     var posDestinoY = 0
     var vivo = true
-
-    method position() = myPosition
-    method position(p) { myPosition = p }
 
     method matar() {
     vivo = false
@@ -44,29 +41,29 @@ class Sapo{
             self.image("enemigoMuerte_" + frameActual + ".png")
         } else {
             game.removeTickEvent("enemigoMuerte")
-            mapaEnemigos.remover(self)
-            if (mapaEnemigos.objetos().isEmpty()) {
+            mapaObjetos.enemigosActivos().remove(self)
+            if (mapaObjetos.enemigosActivos().isEmpty()) {
                 game.removeTickEvent("movimientoSapo")
             }
             game.removeVisual(self)  
-            if (posicionesDestino.hayEn(posDestinoX, posDestinoY)) {
-                posicionesDestino.quitar(posDestinoX, posDestinoY)
-} 
+            if (mapaObjetos.hayEn(posDestinoX, posDestinoY, mapaObjetos.destinoEnemigos())) {
+                mapaObjetos.destinoEnemigos().remove(game.at(posDestinoX, posDestinoY))
+            }
         }
     })
 }
 
     method puedeMover(dir) {
         const deltas = self.deltasDe(dir)
-        const nx = myPosition.x() + deltas.get(0)
-        const ny = myPosition.y() + deltas.get(1)
-        return !mapaParedes.hayEn(nx, ny) && !posicionesDestino.hayEn(nx, ny)
+        const nx = position.x() + deltas.get(0)
+        const ny = position.y() + deltas.get(1)
+        return !mapaObjetos.paredes().contains(game.at(nx, ny)) && !mapaObjetos.hayEn(nx, ny, mapaObjetos.destinoEnemigos())
     }
 
     method dondeMover() {
         const numeroAleatorio = (1..2).anyOne()
-        const dx = personaje.position().x() - myPosition.x()
-        const dy = personaje.position().y() - myPosition.y()
+        const dx = personaje.position().x() - position.x()
+        const dy = personaje.position().y() - position.y()
         const dirX = if (dx > 0) "der" else "izq"
         const dirY = if (dy > 0) "arr" else "abj"
 
@@ -95,7 +92,7 @@ class Sapo{
                     tileA.image("sapo_" + dirActual + "_a_" + frameActual + ".png")
                     tileB.image("sapo_" + dirActual + "_b_" + frameActual + ".png")
                     if (frameActual == 10) {
-                        myPosition = game.at(posDestinoX, posDestinoY)
+                        position = game.at(posDestinoX, posDestinoY)
                     }
                 } 
                 else {
@@ -106,7 +103,7 @@ class Sapo{
                     image = "sapo_" + dirActual + ".png"
                     moviendose = false
                     espera = 20
-                    posicionesDestino.quitar(posDestinoX, posDestinoY)  
+                    mapaObjetos.destinoEnemigos().remove(game.at(posDestinoX, posDestinoY))
                 }
             } else if (espera > 0) {
                 espera = espera - 1
@@ -114,11 +111,11 @@ class Sapo{
                 self.dondeMover()
                 if (self.puedeMover(dirActual)) {
                     const deltas = self.deltasDe(dirActual)
-                    posOrigenX = myPosition.x()
-                    posOrigenY = myPosition.y()
+                    posOrigenX = position.x()
+                    posOrigenY = position.y()
                     posDestinoX = posOrigenX + deltas.get(0)
                     posDestinoY = posOrigenY + deltas.get(1)
-                    posicionesDestino.agregar(posDestinoX, posDestinoY)  
+                    mapaObjetos.destinoEnemigos().add(game.at(posDestinoX, posDestinoY))
                     frameActual = 0
                     moviendose = true
                     tileA = new TileTransicion(position = game.at(posOrigenX, posOrigenY), image = "sapo_" + dirActual + "_a_1.png")
@@ -137,7 +134,7 @@ class Sapo{
 }
 
 class Murcielago{
-    var myPosition = game.at(6, 5)
+    var position = game.at(6, 5)
     var property image = "mur_abj.png"
 
     var frameActual = 0
@@ -150,8 +147,8 @@ class Murcielago{
     var posDestinoX = 0
     var posDestinoY = 0
 
-    method position() = myPosition
-    method position(p) { myPosition = p }
+    method position() = position
+    method position(p) { position = p }
 
     method matar() {
     game.removeTickEvent("movimientoMurcielago")
@@ -171,7 +168,7 @@ class Murcielago{
             self.image("enemigoMuerte_" + frameActual + ".png")
         } else {
             game.removeTickEvent("enemigoMuerte")
-            mapaEnemigos.remover(self)
+            mapaObjetos.enemigosActivos().remove(self)
             game.removeVisual(self)
         }
     })
@@ -179,9 +176,9 @@ class Murcielago{
 
     method puedeMover(dir) {
         const deltas = self.deltasDe(dir)
-        const nx = myPosition.x() + deltas.get(0)
-        const ny = myPosition.y() + deltas.get(1)
-        return !mapaParedes.hayEn(nx, ny)
+        const nx = position.x() + deltas.get(0)
+        const ny = position.y() + deltas.get(1)
+        return !mapaObjetos.paredes().contains(game.at(nx, ny))
     }
 
     method deltasDe(dir) {
@@ -195,8 +192,8 @@ class Murcielago{
         moviendose = true
         frameActual = 0
         dirActual = dir
-        posOrigenX = myPosition.x()
-        posOrigenY = myPosition.y()
+        posOrigenX = position.x()
+        posOrigenY = position.y()
         posDestinoX = posOrigenX + deltas.get(0)
         posDestinoY = posOrigenY + deltas.get(1)
 
@@ -217,7 +214,7 @@ class Murcielago{
             game.removeVisual(tileB)
             tileA = null
             tileB = null
-            myPosition = game.at(posDestinoX, posDestinoY)
+            position = game.at(posDestinoX, posDestinoY)
             image = "mur_" + dirActual + ".png"
             moviendose = false
         }
