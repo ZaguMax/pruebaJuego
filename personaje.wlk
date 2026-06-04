@@ -1,3 +1,4 @@
+import juego.mapaObjetos
 import juego.spawn
 import enemigos.*
 import teclado.*
@@ -9,6 +10,8 @@ object personaje {
 
   var myPosition = game.at(6, 5)
   var property image = "pj_abj.png"
+
+  
 
   var property monedas = 0
   var moviendose = false
@@ -39,14 +42,14 @@ object personaje {
     const deltas = self.deltasDe(dir)
     const nx = myPosition.x() + deltas.get(0)
     const ny = myPosition.y() + deltas.get(1)
-    return !atacando && !moviendose && mapaPalancas.hayEn(nx, ny)
+    return !atacando && !moviendose && mapaObjetos.hayEn(nx, ny, mapaObjetos.palancas())
   } 
 
   method puedeMover(dir) {
     const deltas = self.deltasDe(dir)
     const nx = myPosition.x() + deltas.get(0)
     const ny = myPosition.y() + deltas.get(1)
-    return !atacando && !moviendose && !mapaParedes.hayEn(nx, ny) && !spawn.spawning()
+    return !atacando && !moviendose && !mapaObjetos.hayEn(nx, ny, mapaObjetos.paredes()) && !spawn.spawning()
   }
 
   method deltasDe(dir) {
@@ -61,7 +64,7 @@ object personaje {
       const deltas = self.deltasDe(dirActual)
       const nx = myPosition.x() + deltas.get(0)
       const ny = myPosition.y() + deltas.get(1)
-      mapaPalancas.claves().find({palanca => palanca.position() == game.at(nx,ny)}).actuar()
+      mapaObjetos.palancas().find({palanca => palanca.position() == game.at(nx,ny)}).actuar()
     }
   }
 
@@ -71,7 +74,7 @@ object personaje {
     posOrigenY = myPosition.y()
     posDestinoX = posOrigenX + deltas.get(0)
     posDestinoY = posOrigenY + deltas.get(1)
-    if (self.puedeAtacar() && !mapaParedes.hayEn(posDestinoX, posDestinoY)) {
+    if (self.puedeAtacar() && !mapaObjetos.hayEn(posDestinoX, posDestinoY, mapaObjetos.paredes())) {
       const deltas = self.deltasDe(dir)
       atacando = true
       frameActual = 0
@@ -81,7 +84,7 @@ object personaje {
       posDestinoX = posOrigenX + deltas.get(0)
       posDestinoY = posOrigenY + deltas.get(1)
 
-      mapaEnemigos.enemigosEn(posDestinoX, posDestinoY).forEach({ e => e.matar() })
+      mapaObjetos.enemigosEn(posDestinoX, posDestinoY).forEach({ e => e.matar() })
 
       const sword = game.sound("sword" + (1..3).anyOne() + ".mp3")
       sword.volume(0.3)
@@ -107,7 +110,7 @@ object personaje {
         }
       })
     }
-    else if (self.puedeAtacar() && mapaParedes.hayEn(posDestinoX, posDestinoY)) {
+    else if (self.puedeAtacar() && mapaObjetos.hayEn(posDestinoX, posDestinoY, mapaObjetos.paredes())) {
       const deltas = self.deltasDe(dir)
       atacando = true
       frameActual = 0
@@ -148,6 +151,9 @@ object personaje {
   }
 
   method iniciarMovimiento(dir) {
+
+    
+
     const deltas = self.deltasDe(dir)
     if (self.puedeMover(dir)) {
       moviendose = true
@@ -164,15 +170,15 @@ object personaje {
       game.addVisual(tileB)
       image = "transparente.png"
 
-      game.onTick(15, "movimiento", {
-        frameActual = frameActual + 2
+      game.onTick(30, "movimiento", {
+        frameActual = frameActual + 1
         if (frameActual <= 21) {
           tileA.image("pj_" + dirActual + "_a_" + frameActual + ".png")
           tileB.image("pj_" + dirActual + "_b_" + frameActual + ".png")
         } 
         else {
-          if (mapaMonedas.hayEn(posDestinoX, posDestinoY)) {
-            mapaMonedas.monedaEn(posDestinoX, posDestinoY).agarrar()
+          if (mapaObjetos.hayEn(posDestinoX, posDestinoY, mapaObjetos.monedas())) {
+            mapaObjetos.monedas().find({ m => m.position().x() == posDestinoX && m.position().y() == posDestinoY }).agarrar()
           }
           game.removeVisual(tileA)
           game.removeVisual(tileB)

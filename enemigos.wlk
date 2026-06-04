@@ -1,4 +1,4 @@
-import juego.*
+import juego.mapaObjetos
 import teclado.*
 import wollok.game.*
 import objetos.*

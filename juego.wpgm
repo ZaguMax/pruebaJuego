@@ -4,133 +4,41 @@ import personaje.*
 import teclado.*
 import enemigos.*
 import objetos.*
-
+import niveles.*
 
 
 program rpg {
-  game.width(18)
+  game.width(20)
   game.height(10)
   game.cellSize(80)
   game.title("Mi RPG")
   game.boardGround("mapa1.png")
+
 
   const fondoMusic = game.sound("fondo" + (1..12).anyOne() +  ".mp3")
   fondoMusic.shouldLoop(true)
   fondoMusic.volume(0.3)
   game.schedule(1000, { fondoMusic.play()} )
   
-  const antorcha = new AntorchaArr(position = game.at(3,9))
-  game.addVisual(antorcha)
-  antorcha.animar()
-
-  const antorcha2 = new AntorchaArr(position = game.at(6,9)) 
-  game.addVisual(antorcha2)
-  antorcha2.animar()
-
-  const antorcha3 = new AntorchaAbj(position = game.at(3,1)) 
-  game.addVisual(antorcha3)
-  antorcha3.animar()
-
-  const antorcha4 = new AntorchaAbj(position = game.at(6,1)) 
-  game.addVisual(antorcha4)
-  antorcha4.animar()
-
-  const pincho = new Pinchos(position = game.at(4,3))
-  game.addVisual(pincho)
-
-  const pincho2 = new Pinchos(position = game.at(4,4))
-  game.addVisual(pincho2)
-
-  const palanca = new Palanca(position = game.at(3,3), listaObjetos = [pincho, pincho2])
+  const palanca = new Palanca(position = game.at(3,3), listaObjetos = [0, 1])
   game.addVisual(palanca)
-  mapaPalancas.agregar(palanca)
-
-  const mur = new Murcielago(myPosition = game.at(10, 5))
-  game.addVisual(mur)
-  mur.iniciarMovimiento("arr")
+  mapaObjetos.palancas().add(palanca)
 
 
-  //sapos.cargar()
-  gestorDeEnemigos.comenzarMovimiento()
-  objetos.cargar() 
+  nivel_1.cargar()
   spawn.animar()
   contadorMonedas.cargar()
-
   controles.configurar()
 
 
   game.start()
 }
 
-object objetos {
 
-  const mapaData = [
-  [0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-  [1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-  [1, 0, 0, 2, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1],
-  [1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1],
-  [1, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 2, 2, 2, 2, 2, 2, 1],
-  [1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 2, 0, 2, 1],
-  [1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0, 0, 2, 2, 1],
-  [0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 2, 1],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1]
-  ]
-
-  method cargar() {
-    var y = mapaData.size() - 1
-    mapaData.forEach({ fila =>
-      var x = 0
-      fila.forEach({ celda =>
-        if (celda == 1) { mapaParedes.agregar(x, y) }
-        if (celda == 2) {
-          const moneda = new Coins(position = game.at(x, y))
-          mapaMonedas.agregar(moneda)
-          game.addVisual(moneda)
-          moneda.animar()
-          }
-        x = x + 1
-      })
-      y = y - 1
-    })
-  }
-}
-
-object sapos {
-
-  const mapaData = [
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-  ]
-
-  method cargar() {
-    var y = mapaData.size() - 1
-    mapaData.forEach({ fila =>
-        var x = 0
-        fila.forEach({ celda =>
-            if (celda == 1) {
-                const sapo = new Sapo(name = "sapo", position = game.at(x, y))
-                game.addVisual(sapo)
-                mapaEnemigos.agregar(sapo)
-            }
-            x = x + 1
-        })
-        y = y - 1
-    })
-}
-}
 
 object spawn{
-    const x = 6
-    const y = 5
+    const x = 5
+    const y = 4
     var property spawning = true
     var property position = game.at(x,y)
     var frameActual = 0
@@ -156,4 +64,26 @@ object spawn{
             }
         })
     }
+}
+
+object juego{
+  var property nivelActual = null
+}
+
+object mapaObjetos {
+  var property paredes = []
+  var property enemigosActivos = []
+  var property monedas = []
+  var property palancas = []
+  var property pinchos = []
+  var property antorchas = []
+  var property destinoEnemigos = []
+
+  method hayEn(x, y, lista) {
+    return lista.any({ c => c.position().x() == x && c.position().y() == y })
+  }
+
+  method enemigosEn(x, y){
+    return enemigosActivos.filter({ enemy => enemy.position().x() == x && enemy.position().y() == y })
+  }
 }
