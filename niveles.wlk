@@ -110,9 +110,14 @@ class Nivel {
         juego.mapaObjetos.interactuables().clear()
         juego.mapaObjetos.pisables().clear()
         juego.mapaObjetos.destinoEnemigos().clear()
-        fondoMusic.stop()
+        try {
+            fondoMusic.stop()
+        }
+        catch e : Exception {
+            console.println("Se ignoró un error de música en la limpieza")
+        }
         game.clear()
-        controles.configurar()
+        //controles.configurar()
         personaje.moviendose(true)
     }
 
@@ -168,5 +173,28 @@ object nivel_2 inherits Nivel {
 
 object nivel_3 inherits Nivel {
 
+    override method nivelActual() = 3
+    override method siguienteNivel() = nivel_4
+
+
+    override method palancas()  =  [new Palanca(position = game.at(3,3), listaObjetos = [0, 1]),
+                                    new Palanca(position = game.at(16,5), listaObjetos = [2, 3])]
+
+    override method mapaData() = [
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 5, 0, 0, 0, 0, 0, 0, 4, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 4, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 2, 1, 2, 0, 1],
+        [1, 0, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 1],
+        [1, 0, 2, 1, 2, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 2, 0, 0, 0, 0, 4, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 4, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    ]
+
 }
 
+object nivel_4 {
+  
+}

@@ -12,12 +12,14 @@ program rpg {
   game.cellSize(80)
   game.title("RPG")
   game.ground("celda.png")
+
   gestorNiveles.iniciarJuego()
+  
   game.start()
 }
 
 object gestorNiveles{
-  var nivelActual = 1
+  var property nivelActual = null
 
   method iniciarJuego(){
     nivel_1.cargar()
@@ -27,6 +29,7 @@ object gestorNiveles{
   method pasarNivel(){
     nivelActual.limpiar()
     nivelActual.siguienteNivel().cargar()
+    nivelActual = nivelActual.siguienteNivel()
   }
 }
 

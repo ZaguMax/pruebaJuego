@@ -16,5 +16,6 @@ object controles {
     keyboard.q().onPressDo({nivel_1.limpiar()})
     keyboard.w().onPressDo({nivel_1.cargar()})
     keyboard.e().onPressDo({gestorNiveles.pasarNivel()})
+    keyboard.y().onPressDo({gestorNiveles.nivelActual(nivel_2)})
   }
 }
