@@ -13,7 +13,7 @@ object personaje {
 
   
 
-  var property monedas = 0
+  var monedas = 0
   var moviendose = false
   var atacando = false
   var frameActual = 0
@@ -24,6 +24,11 @@ object personaje {
   var posOrigenY = 0
   var posDestinoX = 0
   var posDestinoY = 0
+
+
+  method añadirMoneda() {
+    monedas +=1
+  }
 
   method position() = myPosition
   method position(p) { myPosition = p }
@@ -49,7 +54,7 @@ object personaje {
     const deltas = self.deltasDe(dir)
     const nx = myPosition.x() + deltas.get(0)
     const ny = myPosition.y() + deltas.get(1)
-    return !atacando && !moviendose && !mapaObjetos.hayEn(nx, ny, mapaObjetos.paredes()) && !spawn.spawning()
+    return !atacando && !moviendose && !mapaObjetos.hayEn(nx, ny, mapaObjetos.paredes())
   }
 
   method deltasDe(dir) {
@@ -84,7 +89,7 @@ object personaje {
       posDestinoX = posOrigenX + deltas.get(0)
       posDestinoY = posOrigenY + deltas.get(1)
 
-      mapaObjetos.enemigosEn(posDestinoX, posDestinoY).forEach({ e => e.matar() })
+      //mapaObjetos.enemigosEn(posDestinoX, posDestinoY).forEach({ e => e.matar() })
 
       const sword = game.sound("sword" + (1..3).anyOne() + ".mp3")
       sword.volume(0.3)

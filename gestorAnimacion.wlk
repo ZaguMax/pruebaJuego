@@ -6,34 +6,31 @@ class TileTransicion
 
 object animacionMovimiento
 {
-    var frameActual = 0
-
-    method movimientoEntreCasillas(character, frames)
+    method movimientoEntreCasillas(character, framesMaximos)
     {
-        const nombreTick = "movimiento_entre_casillas_" + character.identity().toString()
-        game.onTick(30, nombreTick, 
+        const nombreTick = "mov_casillas_" + character.identity().toString()
+        const destinoFinal = character.posicionDestino()
+        
+        game.onTick(50, nombreTick, 
         {
-            frameActual = frameActual + 1
+            character.frameActual(character.frameActual() + 1)
 
-            if (frameActual <= frames)
+            const frame = character.frameActual()
+
+            if (frame <= framesMaximos)
             {
-                character.tileA().image(character.name() + "_" + character.dirActual() + "_a_" + frameActual + ".png")
-                character.tileB().image(character.name() + "_" + character.dirActual() + "_b_" + frameActual + ".png")
-
-                if (frameActual == 10) character.position( character.posicionDestino() )
+                character.tileA().image(character.name() + "_" + character.dirActual() + "_a_" + frame + ".png")
+                character.tileB().image(character.name() + "_" + character.dirActual() + "_b_" + frame + ".png")
             } 
             else
             {
                 game.removeTickEvent(nombreTick)
-                game.removeVisual(character.tileA())
-                game.removeVisual(character.tileB())
+                character.position(destinoFinal)
+                
+                character.tileA().image("transparente.png")
+                character.tileB().image("transparente.png")
 
-                character.tileA(null)
-                character.tileB(null)
-
-                character.image(character.name() + "_" + character.dirActual() + ".png")
-
-                frameActual = 0
+                character.image("") 
             }
         })
     }
@@ -44,15 +41,41 @@ object animacionMovimiento
 
         game.onTick(100, nombreTick,
         {
-            frameActual = frameActual + 1
+            character.frameActual(character.frameActual() + 1)
+            const frame = character.frameActual()
 
-            if (frameActual < 7) character.image("enemigoMuerte_" + frameActual + ".png")
+            if (frame < 7) {
+                character.image("enemigoMuerte_" + frame + ".png")
+            }
             else
             {
                 game.removeTickEvent(nombreTick)
-                game.removeVisual(self)  
+                game.removeVisual(character)
             }
         })
-        
+    }
+}
+
+object animadorGlobal
+{
+    const property elementosAAnimar = []
+
+    method iniciar()
+    {
+        game.onTick(100, "animacionGeneral", {
+            elementosAAnimar.forEach({ elemento => elemento.siguienteFrame() })
+        })
+    }
+
+    method detener() {
+        game.removeTickEvent("animacionGeneral")
+    }
+    
+    method añadir(elemento) {
+        elementosAAnimar.add(elemento)
+    }
+
+    method sacar(elemento) {
+        elementosAAnimar.remove(elemento)
     }
 }

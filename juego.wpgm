@@ -7,31 +7,31 @@ import objetos.*
 import niveles.*
 
 
-program rpg {
-  game.width(20)
-  game.height(10)
-  game.cellSize(80)
-  game.title("Mi RPG")
-  game.boardGround("mapa1.png")
+program rpg
+{
+    game.width(20)
+    game.height(10)
+    game.cellSize(80)
+
+    game.title("Mi RPG")
+    game.boardGround("nivel_2.png")
 
 
-  const fondoMusic = game.sound("fondo" + (1..12).anyOne() +  ".mp3")
-  fondoMusic.shouldLoop(true)
-  fondoMusic.volume(0.3)
-  game.schedule(1000, { fondoMusic.play()} )
-  
-  const palanca = new Palanca(position = game.at(3,3), listaObjetos = [0, 1])
-  game.addVisual(palanca)
-  mapaObjetos.palancas().add(palanca)
+    const fondoMusic = game.sound("fondo" + (1..12).anyOne() +  ".mp3")
+    fondoMusic.shouldLoop(true)
+    fondoMusic.volume(0.3)
+    game.schedule(1000, { fondoMusic.play()} )
+    
+    /*const palanca = new Palanca(position = game.at(3,3), listaObjetos = [0, 1])
+    game.addVisual(palanca)
+    mapaObjetos.palancas().add(palanca)*/
 
+    gestorNiveles.cargarNivelActual()
+    //spawn.animar()
+    //contadorMonedas.cargar()
 
-  nivel_1.cargar()
-  spawn.animar()
-  contadorMonedas.cargar()
-  controles.configurar()
-
-
-  game.start()
+    controles.configurar()
+    game.start()
 }
 
 
@@ -43,6 +43,7 @@ object spawn{
     var property position = game.at(x,y)
     var frameActual = 0
     var property image = "Spawn_1.png"
+
     method animar() {
       game.addVisual(self)
       const spawn = game.sound("spawn.mp3")
@@ -66,24 +67,32 @@ object spawn{
     }
 }
 
-object juego{
-  var property nivelActual = null
-}
+object mapaObjetos
+{
+    var property paredes = []
+    //var property enemigosActivos = []
+    var property monedas = []
+    var property palancas = []
+    var property pinchos = []
+    var property antorchas = []
+    var property destinoEnemigos = []
 
-object mapaObjetos {
-  var property paredes = []
-  var property enemigosActivos = []
-  var property monedas = []
-  var property palancas = []
-  var property pinchos = []
-  var property antorchas = []
-  var property destinoEnemigos = []
+    method hayEn(x, y, lista) {
+        return lista.any({ c => c.position().x() == x && c.position().y() == y })
+    }
 
-  method hayEn(x, y, lista) {
-    return lista.any({ c => c.position().x() == x && c.position().y() == y })
-  }
+    /* method enemigosEn(x, y){
+        return enemigosActivos.filter({ enemy => enemy.position().x() == x && enemy.position().y() == y })
+    }*/
 
-  method enemigosEn(x, y){
-    return enemigosActivos.filter({ enemy => enemy.position().x() == x && enemy.position().y() == y })
-  }
+    method clear()
+    {
+        paredes.clear()
+        //enemigosActivos.clear()
+        monedas.clear()
+        palancas.clear()
+        pinchos.clear()
+        antorchas.clear()
+        destinoEnemigos.clear()
+    }
 }
