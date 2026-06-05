@@ -1,28 +1,29 @@
 import juego.mapaObjetos
-import juego.spawn
 import enemigos.*
 import teclado.*
 import wollok.game.*
 import objetos.*
 
 object personaje {
+  
 
   var myPosition = game.at(6, 5)
   var property image = "pj_abj.png"
 
   
-
+  var property tpeado = false
   var property monedas = 0
-  var moviendose = false
+  var property moviendose = false
   var atacando = false
   var frameActual = 0
   var tileA = null
   var tileB = null
-  var dirActual = "abj"
+  var property dirActual = "abj"
   var posOrigenX = 0
   var posOrigenY = 0
   var posDestinoX = 0
   var posDestinoY = 0
+  var property tpeando = false 
 
   method position() = myPosition
   method position(p) { myPosition = p }
@@ -41,7 +42,7 @@ object personaje {
     const deltas = self.deltasDe(dir)
     const nx = myPosition.x() + deltas.get(0)
     const ny = myPosition.y() + deltas.get(1)
-    return !atacando && !moviendose && mapaObjetos.hayEn(nx, ny, mapaObjetos.palancas())
+    return !atacando && !moviendose && mapaObjetos.hayEn(nx, ny, mapaObjetos.interactuables())
   } 
 
   method puedeMover(dir) {
@@ -63,7 +64,7 @@ object personaje {
       const deltas = self.deltasDe(dirActual)
       const nx = myPosition.x() + deltas.get(0)
       const ny = myPosition.y() + deltas.get(1)
-      mapaObjetos.palancas().find({palanca => palanca.position() == game.at(nx,ny)}).actuar()
+      mapaObjetos.interactuables().find({palanca => palanca.position() == game.at(nx,ny)}).actuar()
     }
   }
 
@@ -179,11 +180,16 @@ object personaje {
           if (mapaObjetos.hayEn(posDestinoX, posDestinoY, mapaObjetos.monedas())) {
             mapaObjetos.monedas().find({ m => m.position().x() == posDestinoX && m.position().y() == posDestinoY }).agarrar()
           }
+          if (mapaObjetos.hayEn(posDestinoX, posDestinoY, mapaObjetos.pisables())) {
+            mapaObjetos.pisables().find({ m => m.position().x() == posDestinoX && m.position().y() == posDestinoY }).pisar()
+          }
           game.removeVisual(tileA)
           game.removeVisual(tileB)
           tileA = null
           tileB = null
           myPosition = game.at(posDestinoX, posDestinoY)
+          tpeado = false
+          
           image = "pj_" + dirActual + ".png"
           game.removeTickEvent("movimiento")
           moviendose = false
@@ -194,6 +200,28 @@ object personaje {
       image = "pj_" + dirActual + ".png"
     }
   }
+
+  method teletransportar(x, y) {
+    const destino = new TileTransicion(position = game.at(x,y), image = "teleportPj_"+ dirActual + "_b_1.png")
+    game.addVisual(destino)
+    tpeando = true
+    var frame = 0
+    game.onTick(1, "teletransportePj", {
+      frame = frame + 1
+      if (frame < 7){
+        image = "teleportPj_"+ dirActual + "_" + frame + ".png"
+        destino.image("teleportPj_"+ dirActual + "_b_" + frame + ".png")
+      }
+      else{
+        frame = 0
+        game.removeTickEvent("teletransportePj")
+        game.removeVisual(destino)
+        self.position(game.at(x, y))
+        image = "pj_" + dirActual + ".png"
+      }   
+    })
+    
+  }
 }
 
 class TileTransicion {
@@ -203,4 +231,43 @@ class TileTransicion {
   method image(nuevaImagen) {
     image = nuevaImagen
   }
+}
+
+object spawn {
+    var property spawning = false
+    var property position = game.at(0, 0) 
+    var frameActual = 1
+    var property image = "Spawn_1.png"
+
+    method animar() {
+        spawning = true
+        personaje.dirActual("abj")
+        personaje.image("pj_" + personaje.dirActual() + ".png") 
+        if (!game.allVisuals().contains(self)) {
+            game.addVisual(self)
+        }
+
+        const audioSpawn = game.sound("spawn.mp3")
+        audioSpawn.volume(0.3)
+        audioSpawn.play()
+
+        game.onTick(100, "eventoSpawn", {
+            self.image("Spawn_" + frameActual + ".png")
+            frameActual = frameActual + 1
+
+            if (frameActual > 14) {
+                game.removeTickEvent("eventoSpawn")
+                game.removeVisual(self)
+
+                const posXPersonaje = self.position().x() + 1
+                const posYPersonaje = self.position().y()
+                
+                game.addVisual(personaje)
+                personaje.position(game.at(posXPersonaje, posYPersonaje))
+                
+                spawning = false
+                frameActual = 1 
+            }
+        })
+    }
 }

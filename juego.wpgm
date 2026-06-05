@@ -1,4 +1,3 @@
-import wollok.mirror.*
 import wollok.game.*
 import personaje.*
 import teclado.*
@@ -11,73 +10,35 @@ program rpg {
   game.width(20)
   game.height(10)
   game.cellSize(80)
-  game.title("Mi RPG")
-  game.boardGround("mapa1.png")
-
-
-  const fondoMusic = game.sound("fondo" + (1..12).anyOne() +  ".mp3")
-  fondoMusic.shouldLoop(true)
-  fondoMusic.volume(0.3)
-  game.schedule(1000, { fondoMusic.play()} )
-  
-  const palanca = new Palanca(position = game.at(3,3), listaObjetos = [0, 1])
-  game.addVisual(palanca)
-  mapaObjetos.palancas().add(palanca)
-
-
-  nivel_1.cargar()
-  spawn.animar()
-  contadorMonedas.cargar()
-  controles.configurar()
-
-
+  game.title("RPG")
+  game.ground("celda.png")
+  gestorNiveles.iniciarJuego()
   game.start()
 }
 
+object gestorNiveles{
+  var nivelActual = 1
 
+  method iniciarJuego(){
+    nivel_1.cargar()
+    nivelActual = nivel_1
+  }
 
-object spawn{
-    const x = 5
-    const y = 4
-    var property spawning = true
-    var property position = game.at(x,y)
-    var frameActual = 0
-    var property image = "Spawn_1.png"
-    method animar() {
-      game.addVisual(self)
-      const spawn = game.sound("spawn.mp3")
-      spawn.volume(0.3)
-      spawn.play()
-
-        game.onTick(100, "Spawn", {
-        frameActual = frameActual + 1
-            if (frameActual < 14) {
-                self.image("Spawn_" + frameActual + ".png")
-            } 
-            else {
-                frameActual = 0
-                game.addVisual(personaje)
-                game.removeTickEvent("Spawn")
-                game.removeVisual(self)
-                personaje.position(game.at(x+1, y))
-                spawning = false
-            }
-        })
-    }
-}
-
-object juego{
-  var property nivelActual = null
+  method pasarNivel(){
+    nivelActual.limpiar()
+    nivelActual.siguienteNivel().cargar()
+  }
 }
 
 object mapaObjetos {
   var property paredes = []
   var property enemigosActivos = []
   var property monedas = []
-  var property palancas = []
+  var property interactuables = []
   var property pinchos = []
   var property antorchas = []
   var property destinoEnemigos = []
+  var property pisables = []
 
   method hayEn(x, y, lista) {
     return lista.any({ c => c.position().x() == x && c.position().y() == y })

@@ -2,9 +2,15 @@ import personaje.*
 import juego.mapaObjetos
 import enemigos.*
 
+object fondo {
+    var property image = "mapa1.png"
+    var property position = game.at(0, 0)
+}
+
 class Collision{
     var property position
 }
+
 class AntorchaArr{
     var property position
     var frameActual = 0
@@ -88,7 +94,8 @@ class Pinchos{
 class Palanca{
     var property position
     var property listaObjetos 
-    var puedeCerrar = true
+    var property puedeCerrar = true
+    method esPalanca() = true 
     var property modo = 1
     var frameActual = 0
     var property image = "PalancaCerrada.png"
@@ -160,6 +167,9 @@ class Coins{
     }
 
     method agarrar() {
+        const agarrarMoneda = game.sound("agarrarMoneda.mp3")
+        agarrarMoneda.volume(0.6)
+        agarrarMoneda.play()
         game.removeVisual(self)
         personaje.monedas(personaje.monedas() + 1)
         contadorMonedas.actualizar()
@@ -193,4 +203,34 @@ object contadorMonedas{
         unidadesVisual.image("" + unidades + ".png")
     }
 
+}
+
+
+class Portal{
+    var property position
+    var property dirDestino
+    method esPalanca() = false 
+    
+    var frameActual = 0
+    var property image = "portal_1.png"
+    method animar() {
+        game.onTick(500, "portal", {
+        frameActual = frameActual + 1
+            if (frameActual < 4) {
+                self.image("portal_" + frameActual + ".png")
+            } 
+            else {
+                frameActual = 0
+            }
+        })
+    }
+    method pisar() {
+        const tp = game.sound("tp_" + (1..2).anyOne() + ".mp3")
+        tp.volume(0.3)
+        if (!personaje.tpeado()){
+            personaje.tpeado(true)
+            tp.play()
+            personaje.teletransportar(dirDestino.get(0), dirDestino.get(1))
+            }
+    }
 }
