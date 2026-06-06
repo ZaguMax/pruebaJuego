@@ -3,6 +3,7 @@ import enemigos.*
 import teclado.*
 import wollok.game.*
 import objetos.*
+import gestorAnimacion.*
 
 object personaje {
   
@@ -24,6 +25,16 @@ object personaje {
   var posDestinoX = 0
   var posDestinoY = 0
   var property tpeando = false 
+
+
+  method añadirMoneda() {
+    monedas +=1
+  }
+
+
+  method añadirMoneda() {
+    monedas +=1
+  }
 
   method position() = myPosition
   method position(p) { myPosition = p }
@@ -49,7 +60,7 @@ object personaje {
     const deltas = self.deltasDe(dir)
     const nx = myPosition.x() + deltas.get(0)
     const ny = myPosition.y() + deltas.get(1)
-    return !atacando && !moviendose && !mapaObjetos.hayEn(nx, ny, mapaObjetos.paredes()) && !spawn.spawning()
+    return !atacando && !moviendose && !mapaObjetos.hayEn(nx, ny, mapaObjetos.paredes())
   }
 
   method deltasDe(dir) {
@@ -84,7 +95,7 @@ object personaje {
       posDestinoX = posOrigenX + deltas.get(0)
       posDestinoY = posOrigenY + deltas.get(1)
 
-      mapaObjetos.enemigosEn(posDestinoX, posDestinoY).forEach({ e => e.matar() })
+      //mapaObjetos.enemigosEn(posDestinoX, posDestinoY).forEach({ e => e.matar() })
 
       const sword = game.sound("sword" + (1..3).anyOne() + ".mp3")
       sword.volume(0.3)
@@ -232,43 +243,4 @@ class TileTransicion {
   method image(nuevaImagen) {
     image = nuevaImagen
   }
-}
-
-object spawn {
-    var property spawning = false
-    var property position = game.at(0, 0) 
-    var frameActual = 1
-    var property image = "Spawn_1.png"
-
-    method animar() {
-        spawning = true
-        personaje.dirActual("abj")
-        personaje.image("pj_" + personaje.dirActual() + ".png") 
-        if (!game.allVisuals().contains(self)) {
-            game.addVisual(self)
-        }
-
-        const audioSpawn = game.sound("spawn.mp3")
-        audioSpawn.volume(0.3)
-        audioSpawn.play()
-
-        game.onTick(100, "eventoSpawn", {
-            self.image("Spawn_" + frameActual + ".png")
-            frameActual = frameActual + 1
-
-            if (frameActual > 14) {
-                game.removeTickEvent("eventoSpawn")
-                game.removeVisual(self)
-
-                const posXPersonaje = self.position().x() + 1
-                const posYPersonaje = self.position().y()
-                
-                game.addVisual(personaje)
-                personaje.position(game.at(posXPersonaje, posYPersonaje))
-                
-                spawning = false
-                frameActual = 1 
-            }
-        })
-    }
 }

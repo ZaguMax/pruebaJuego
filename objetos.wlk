@@ -1,4 +1,5 @@
 import personaje.*
+import gestorAnimacion.*
 import juego.mapaObjetos
 import juego.gestorNiveles
 import enemigos.*
@@ -11,39 +12,24 @@ object fondo {
 class Collision{
     var property position
 }
-
 class AntorchaArr{
     var property position
-    var frameActual = 0
-    var property image = "AntorchaArr.png"
-    method animar() {
-        game.onTick(100, "AntorchaArr", {
-        frameActual = frameActual + 1
-            if (frameActual < 9) {
-                self.image("AntorchaArr_" + frameActual + ".png")
-            } 
-            else {
-                frameActual = 0
-            }
-        })
+    var frameActual = 1
+
+    const property frames = (0..7).map({ i => "AntorchaArr_" + i + ".png" })
+
+    method image() = frames.get(frameActual)
+
+    method siguienteFrame()
+    {
+        frameActual += 1
+        if (frameActual > 7) frameActual = 1
     }
 }
 
-class AntorchaAbj{
-    var property position
-    var frameActual = 0
-    var property image = "AntorchaAbj.png"
-    method animar() {
-        game.onTick(100, "AntorchaAbj", {
-        frameActual = frameActual + 1
-            if (frameActual < 9) {
-                self.image("AntorchaAbj_" + frameActual + ".png")
-            } 
-            else {
-                frameActual = 0
-            }
-        })
-    }
+class AntorchaAbj inherits AntorchaArr
+{
+    override method image() = "AntorchaAbj_" + frameActual + ".png"
 }
 
 class Pinchos{
@@ -55,7 +41,6 @@ class Pinchos{
     var property image = "PinchosCerrados.png"
     method abrir() {
         if (modo == 1 && puedeCerrar){frameActual = 0
-        mapaObjetos.enemigosEn(position.x(), position.y()).forEach({ e => e.matar() })
             game.onTick(100, "PinchoAbriendo", {
                 frameActual = frameActual + 1
                 if (frameActual < 7) {
@@ -151,33 +136,34 @@ class Palanca{
     
 }
 
-class Coins{
+class Moneda
+{
     var property position
-    var frameActual = 0
-    var property image = "coin_1.png"
-    method animar() {
-        game.onTick(100, "Coin", {
-        frameActual = frameActual + 1
-            if (frameActual < 7) {
-                self.image("coin_" + frameActual + ".png")
-            } 
-            else {
-                frameActual = 0
-            }
-        })
+    var frameActual = 1
+    var subReloj = 0
+
+    method image() = "coin_" + frameActual + ".png"
+
+    method siguienteFrame()
+    {
+        subReloj += 1
+
+        if(subReloj >= 3)
+        {
+            subReloj = 0
+            frameActual += 1
+            if (frameActual > 5) frameActual = 1
+        }
     }
 
     method agarrar() {
-        const agarrarMoneda = game.sound("agarrarMoneda.mp3")
-        agarrarMoneda.volume(0.6)
-        agarrarMoneda.play()
         game.removeVisual(self)
         personaje.monedas(personaje.monedas() + 1)
         contadorMonedas.actualizar()
+
         mapaObjetos.monedas().remove(self)
-        if (mapaObjetos.monedas().isEmpty()) {
-                game.removeTickEvent("Coin")
-            }
+        animadorGlobal.sacar(self)
+        game.removeVisual(self)
     }
 }
 
