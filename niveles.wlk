@@ -26,7 +26,7 @@ object gestorNiveles
     var property musicaActual = null
 
     method pasarNivel() {
-        nivelActual = 1 //niveles.indexOf(nivelActual)
+        nivelActual = nivelActual + 1 //niveles.indexOf(nivelActual)
         transition.active()
     }
 
@@ -47,7 +47,7 @@ object gestorNiveles
     method cargarNivelActual()
     {
         // referencias
-        const nivel = nivel_1 // niveles.get(nivelActual)
+        const nivel = niveles.get(nivelActual)
         const mapa = nivel.mapaData()
         const background = nivel.background()
 
@@ -248,7 +248,7 @@ object nivel_2 inherits Nivel
         [0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0],
         [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1],
         [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 67, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
         [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0],
         [1, 0, 0, 0, 0, 5, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
         [0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0],

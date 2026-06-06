@@ -234,7 +234,7 @@ object spawn {
     var property spawning = false
     var property position = game.at(0, 0) 
     var frameActual = 1
-    var property image = "Spawn1.png"
+    var property image = "Spawn_1.png"
 
     method animar() {
         spawning = true
@@ -260,6 +260,7 @@ object spawn {
                 const posYPersonaje = self.position().y()
 
                 game.addVisual(personaje)
+                personaje.image("pj_abj.png")
                 personaje.position(game.at(posXPersonaje, posYPersonaje))
 
                 spawning = false
