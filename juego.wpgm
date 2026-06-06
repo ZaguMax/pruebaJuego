@@ -20,16 +20,17 @@ program rpg {
 
 object gestorNiveles{
   var property nivelActual = null
+  var property proximoNivel = null
 
   method iniciarJuego(){
-    nivel_1.cargar()
     nivelActual = nivel_1
+    proximoNivel = nivel_1
+    nivel_1.cargar()
   }
 
   method pasarNivel(){
-    nivelActual.limpiar()
-    nivelActual.siguienteNivel().cargar()
-    nivelActual = nivelActual.siguienteNivel()
+    proximoNivel = nivelActual.siguienteNivel()
+    transition.active()
   }
 }
 

@@ -1,5 +1,6 @@
 import personaje.*
 import juego.mapaObjetos
+import juego.gestorNiveles
 import enemigos.*
 
 object fondo {
@@ -225,6 +226,7 @@ class Portal{
         })
     }
     method pisar() {
+        personaje.moviendose(true)
         const tp = game.sound("tp_" + (1..2).anyOne() + ".mp3")
         tp.volume(0.3)
         if (!personaje.tpeado()){
@@ -232,5 +234,52 @@ class Portal{
             tp.play()
             personaje.teletransportar(dirDestino.get(0), dirDestino.get(1))
             }
+    }
+}
+
+object transition {
+    var property image = "transparente.png"
+    var property position = game.at(0, 0)
+    var frameActual = 0
+
+    method active() {
+        personaje.moviendose(true)
+        game.addVisual(self)
+        game.onTick(10, "transition", {
+        frameActual = frameActual + 1
+            if (frameActual < 26) {
+                self.image("transition_" + frameActual + ".png")
+            } 
+            else {
+                game.removeTickEvent("transition")
+                gestorNiveles.nivelActual().limpiar()
+            }
+        })
+    }
+
+    
+    method desactive() {
+        personaje.moviendose(true)
+        game.removeVisual(self)
+        game.addVisual(self)
+        game.onTick(10, "transition", {
+        frameActual = frameActual - 1
+            if (frameActual > 0) {
+                self.image("transition_" + frameActual + ".png")
+            } 
+            else {
+                game.removeTickEvent("transition")
+                game.removeVisual(self)
+                gestorNiveles.nivelActual(gestorNiveles.proximoNivel())
+                personaje.moviendose(false)
+            }
+        })
+    }
+}
+
+class Escalera {
+    var property position 
+    method pisar() {
+        gestorNiveles.pasarNivel()
     }
 }

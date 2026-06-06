@@ -1,3 +1,4 @@
+import objetos.*
 import wollok.game.*
 import personaje.*
 import juego.gestorNiveles
@@ -12,10 +13,5 @@ object controles {
     keyboard.down().onPressDo({ personaje.moverAbajo() })
     keyboard.x().onPressDo({personaje.ataque()})
     keyboard.z().onPressDo({personaje.interact()})
-
-    keyboard.q().onPressDo({nivel_1.limpiar()})
-    keyboard.w().onPressDo({nivel_1.cargar()})
-    keyboard.e().onPressDo({gestorNiveles.pasarNivel()})
-    keyboard.y().onPressDo({gestorNiveles.nivelActual(nivel_2)})
   }
 }

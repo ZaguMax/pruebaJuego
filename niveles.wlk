@@ -1,4 +1,4 @@
-import juego.*
+import juego.gestorNiveles
 import personaje.*
 import enemigos.*
 import objetos.*
@@ -40,66 +40,74 @@ class Nivel {
         personaje.moviendose(false)
         self.musica()
         game.addVisual(fondo)
-        self.interactuables().forEach({lista =>
-            lista.forEach({ a => 
-                game.addVisual(a)
-                juego.mapaObjetos.interactuables().add(a)
-                a.modo(1)
-                a.puedeCerrar(true)
-            })
-        })
+        
+        self.interactuables().forEach({lista => lista.forEach({ a => game.addVisual(a) juego.mapaObjetos.interactuables().add(a) a.modo(1) a.puedeCerrar(true) })})
+        self.pisables().forEach({lista => lista.forEach({ a => game.addVisual(a) a.animar() juego.mapaObjetos.pisables().add(a) })})
 
-        self.pisables().forEach({lista =>
-            lista.forEach({ a => 
-                game.addVisual(a)
-                a.animar()
-                juego.mapaObjetos.pisables().add(a)
-            })
-        })
         var y = self.mapaData().size() - 1
         self.mapaData().forEach({ fila =>
             var x = 0
             fila.forEach({ celda =>
-                if (celda == 1) { 
-                    const pared = new Collision(position = game.at(x, y))
-                    juego.mapaObjetos.paredes().add(pared)
-                }
-                if (celda == 2) {
-                    const moneda = new Coins(position = game.at(x, y))
-                    juego.mapaObjetos.monedas().add(moneda)
-                    game.addVisual(moneda)
-                    moneda.animar()
-                }
-                if (celda == 3) {
-                    const sapo = new Sapo(position = game.at(x, y))
-                    juego.mapaObjetos.enemigosActivos().add(sapo)
-                    game.addVisual(sapo)
-                    sapo.iniciarMovimiento()
-                }
-                if (celda == 4) {
-                    const pincho = new Pinchos(position = game.at(x, y))
-                    juego.mapaObjetos.pinchos().add(pincho)
-                    game.addVisual(pincho)
-                }
-                if (celda == 5) {
-                    if (self.nivelActual() == 1) {
-                        spawn.position(game.at(x-1, y))
-                        spawn.animar() 
-                    } 
-                    else {
-                        game.addVisual(personaje)
-                        personaje.position(game.at(x, y))
-                    }
-                }
+                
+                self.procesarCelda(celda, x, y)
+
                 x = x + 1
+                if(y == 0 && x == 20){ 
+                    transition.desactive()  
+                }
             })
             y = y - 1
         })
     
-        
-    
         fondo.image(self.background())
         contadorMonedas.cargar()
+    }
+
+    method procesarCelda(celda, x, y) {
+        if (celda == 1) { self.crearPared(x, y) }
+        if (celda == 2) { self.crearMoneda(x, y) }
+        if (celda == 3) { self.crearSapo(x, y) }
+        if (celda == 4) { self.crearPincho(x, y) }
+        if (celda == 5) { self.crearSpawnPersonaje(x, y) }
+        if (celda == 6) { self.crearBloqueSeis(x, y) }
+    }
+
+    method crearPared(x, y) {
+        const pared = new Collision(position = game.at(x, y))
+        juego.mapaObjetos.paredes().add(pared)
+    }
+
+    method crearMoneda(x, y) {
+        const moneda = new Coins(position = game.at(x, y))
+        juego.mapaObjetos.monedas().add(moneda)
+        game.addVisual(moneda)
+        moneda.animar()
+    }
+
+    method crearSapo(x, y) {
+        const sapo = new Sapo(position = game.at(x, y))
+        juego.mapaObjetos.enemigosActivos().add(sapo)
+        game.addVisual(sapo)
+        sapo.iniciarMovimiento()
+    }
+
+    method crearPincho(x, y) {
+        const pincho = new Pinchos(position = game.at(x, y))
+        juego.mapaObjetos.pinchos().add(pincho)
+        game.addVisual(pincho)
+    }
+
+    method crearSpawnPersonaje(x, y) {
+        if (self.nivelActual() == 1) {
+            spawn.position(game.at(x - 1, y))
+            spawn.animar() 
+        } else {
+            game.addVisual(personaje)
+            personaje.position(game.at(x, y))
+        }
+    }
+
+    method crearBloqueSeis(x, y) {
     }
 
     method limpiar() {
@@ -119,8 +127,8 @@ class Nivel {
         game.clear()
         //controles.configurar()
         personaje.moviendose(true)
+        gestorNiveles.proximoNivel().cargar()
     }
-
 }
 
 object nivel_1 inherits Nivel {

@@ -218,6 +218,7 @@ object personaje {
         game.removeVisual(destino)
         self.position(game.at(x, y))
         image = "pj_" + dirActual + ".png"
+        moviendose = false
       }   
     })
     
