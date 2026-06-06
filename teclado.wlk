@@ -10,5 +10,6 @@ object controles {
     keyboard.x().onPressDo({personaje.ataque()})
     keyboard.z().onPressDo({personaje.interact()})
     keyboard.l().onPressDo({gestorNiveles.pasarNivel() })
+    keyboard.s().onPressDo({game.stop()})
   }
 }

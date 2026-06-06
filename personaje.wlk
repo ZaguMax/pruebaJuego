@@ -214,6 +214,7 @@ object personaje {
     game.onTick(1, "teletransportePj", {
       frame = frame + 1
       if (frame < 7){
+        moviendose = true
         image = "teleportPj_"+ dirActual + "_" + frame + ".png"
         destino.image("teleportPj_"+ dirActual + "_b_" + frame + ".png")
       }
@@ -249,6 +250,7 @@ object spawn {
         audioSpawn.play()
 
         game.onTick(100, "eventoSpawn", {
+            personaje.moviendose(true)
             self.image("Spawn_" + frameActual + ".png")
             frameActual = frameActual + 1
 
@@ -263,6 +265,7 @@ object spawn {
                 personaje.image("pj_abj.png")
                 personaje.position(game.at(posXPersonaje, posYPersonaje))
 
+                personaje.moviendose(false)
                 spawning = false
                 frameActual = 1 
             }

@@ -53,7 +53,7 @@ object gestorNiveles
 
         // construccion del mapa
         game.addVisual(background)
-        self.construirMapa(mapa)
+        self.construirMapa(mapa, nivel)
 
         // Crear interfaz
         contadorMonedas.cargar()
@@ -72,12 +72,15 @@ object gestorNiveles
         //game.addVisual(personaje)
         //personaje.position(game.at(5, 4))
 
+
         personaje.moviendose(false)
         controles.configurar()
     }
 
-    method construirMapa(mapa)
+    method construirMapa(mapa, nivel)
     {
+        nivel.interactuables().forEach({lista => lista.forEach({ a => game.addVisual(a) juego.mapaObjetos.interactuables().add(a) a.modo(1) a.puedeCerrar(true) })})
+        nivel.pisables().forEach({lista => lista.forEach({ a => game.addVisual(a) a.animar() juego.mapaObjetos.pisables().add(a) })})
         const altoMatriz = mapa.size()
         // Recorrer los índices de las filas (Eje Y)
         (0 .. altoMatriz - 1).forEach
@@ -178,9 +181,11 @@ object transition {
     
     method desactive()
     {
+        
         gestorNiveles.cargarNivelActual()
         game.removeVisual(self)
         game.addVisual(self)
+        personaje.moviendose(true)
 
         game.onTick(10, "transition", {
         frameActual = frameActual - 1
@@ -224,15 +229,15 @@ object nivel_1 inherits Nivel
 
     override method mapaData() = [
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0],
-        [0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0],
-        [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-        [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 0, 67, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0],
-        [1, 0, 0, 0, 0, 5, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
-        [0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 5, 0, 0, 0, 0, 0, 0, 4, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 67, 0, 0, 0, 0, 0, 4, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 2, 1, 2, 0, 1],
+        [1, 0, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 1],
+        [1, 0, 2, 1, 2, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 2, 0, 0, 0, 0, 4, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 4, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
     ]
 }
 
