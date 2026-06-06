@@ -26,12 +26,6 @@ object personaje {
   var posDestinoY = 0
   var property tpeando = false 
 
-
-  method añadirMoneda() {
-    monedas +=1
-  }
-
-
   method añadirMoneda() {
     monedas +=1
   }
@@ -236,11 +230,41 @@ object personaje {
   }
 }
 
-class TileTransicion {
-  var property position
-  var property image
+object spawn {
+    var property spawning = false
+    var property position = game.at(0, 0) 
+    var frameActual = 1
+    var property image = "Spawn1.png"
 
-  method image(nuevaImagen) {
-    image = nuevaImagen
-  }
+    method animar() {
+        spawning = true
+        personaje.dirActual("abj")
+        personaje.image("pj" + personaje.dirActual() + ".png") 
+        if (!game.allVisuals().contains(self)) {
+            game.addVisual(self)
+        }
+
+        const audioSpawn = game.sound("spawn.mp3")
+        audioSpawn.volume(0.3)
+        audioSpawn.play()
+
+        game.onTick(100, "eventoSpawn", {
+            self.image("Spawn_" + frameActual + ".png")
+            frameActual = frameActual + 1
+
+            if (frameActual > 14) {
+                game.removeTickEvent("eventoSpawn")
+                game.removeVisual(self)
+
+                const posXPersonaje = self.position().x() + 1
+                const posYPersonaje = self.position().y()
+
+                game.addVisual(personaje)
+                personaje.position(game.at(posXPersonaje, posYPersonaje))
+
+                spawning = false
+                frameActual = 1 
+            }
+        })
+    }
 }

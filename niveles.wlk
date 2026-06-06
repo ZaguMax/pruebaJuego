@@ -1,6 +1,5 @@
 import gestorAnimacion.*
 import juego.*
-import juego.gestorNiveles
 import personaje.*
 import enemigos.*
 import objetos.*
@@ -14,37 +13,67 @@ import teclado.*
     *  - 2: Moneda
     *  - 3: Sapo (enemigo)
     *  - 4: Pinchos
-    *  - 5: Personaje (punto de inicio)
+    *  - 67: Personaje (punto de inicio)
     *  - 0: Pinchos
     *
     *  Puedes agregar más niveles siguiendo el mismo formato.
 */
 
-
 object gestorNiveles
 {
     var property nivelActual = 1
-    const niveles = [nivel_1, nivel_2, nivel_3]
+    const niveles = [null, nivel_1, nivel_2, nivel_3]
+    var property musicaActual = null
+
+    method pasarNivel() {
+        nivelActual = 1 //niveles.indexOf(nivelActual)
+        transition.active()
+    }
 
     method iniciarJuego()
     {
-        nivelActual = 1
         self.cargarNivelActual()
+    }
+
+    method descargarNivel()
+    {
+        game.clear()
+        juego.mapaObjetos.clear()
+        gestorDeEnemigos.enemigosActivos().clear()
+
+        if(musicaActual != null) musicaActual.stop()
     }
 
     method cargarNivelActual()
     {
-        game.clear()
-        juego.mapaObjetos.clear()
-        game.addVisual(personaje)
-        personaje.position(game.at(5, 4))
+        // referencias
+        const nivel = nivel_1 // niveles.get(nivelActual)
+        const mapa = nivel.mapaData()
+        const background = nivel.background()
 
-        const mapa = niveles.get(nivelActual-1).mapaData()
-        const background = niveles.get(nivelActual-1).background()
-
+        // construccion del mapa
+        game.addVisual(background)
         self.construirMapa(mapa)
+
+        // Crear interfaz
+        contadorMonedas.cargar()
+
+        // inicializacion de animaciones y movimiento de enemigos
         animadorGlobal.iniciar()
         gestorDeEnemigos.comenzarMovimiento()
+
+        //musica
+        musicaActual = game.sound(nivel.musicaNivel())
+        musicaActual.shouldLoop(true)
+        musicaActual.volume(0.1)
+        game.schedule(1000, { musicaActual.play() })
+
+        // personaje
+        //game.addVisual(personaje)
+        //personaje.position(game.at(5, 4))
+
+        personaje.moviendose(false)
+        controles.configurar()
     }
 
     method construirMapa(mapa)
@@ -64,125 +93,36 @@ object gestorNiveles
 
                 const posX = indexColumna
                 const posY = altoMatriz - 1 - indexFila
-                const posicionActual = game.at(posX, posY)
 
-                // Spawnear celda correspondiente
-
-                if (celda == 1)
-                { 
-                    juego.mapaObjetos.paredes().add(new Collision(position = posicionActual))
-                }
-                
-                if (celda == 2)
-                {
-                    const moneda = new Moneda(position = posicionActual)
-                    juego.mapaObjetos.monedas().add(moneda)
-                    game.addVisual(moneda)
-                    animadorGlobal.añadir(moneda)
-                }
-                
-                if (celda == 3)
-                {
-                    const sapo = new Sapo(position = posicionActual)
-                    sapo.prepararVisuales()
-                    game.addVisual(sapo)
-                    gestorDeEnemigos.añadir(sapo)
-                }
-                
-                if (celda == 4) {
-                    const pincho = new Pinchos(position = posicionActual)
-                    juego.mapaObjetos.pinchos().add(pincho)
-                    game.addVisual(pincho)
-                }
-
-                if (celda == 5)
-                {
-                    juego.mapaObjetos.paredes().add(new Collision(position = posicionActual))
-                    const antorcha = new AntorchaArr(position = posicionActual)
-                    game.addVisual(antorcha)
-                    animadorGlobal.añadir(antorcha)
-                }
+                self.procesarCelda(celda, posX, posY)
             })
         })
-    }
-}
-
-class Nivel
-{
-    method mapaData() = []
-    method background() = null
-class Nivel {
-    var fondoMusic = null
-    method siguienteNivel() = null
-    method nivelActual() = null
-    method mapaData() = []
-    method interactuables() = [self.palancas()]
-    method pisables() = [self.teletransportes()] 
-    method palancas() = []
-    method teletransportes() = []
-    method background() = "" + self + ".png"
-
-    method musica(){
-        fondoMusic = game.sound("fondo" + (1..12).anyOne() +  ".mp3")
-        fondoMusic.shouldLoop(true)
-        fondoMusic.volume(0.2)
-        game.schedule(1000, { fondoMusic.play()} )
-    }
-
-    method cargar() {
-        controles.configurar()
-        personaje.moviendose(false)
-        self.musica()
-        game.addVisual(fondo)
-        
-        self.interactuables().forEach({lista => lista.forEach({ a => game.addVisual(a) juego.mapaObjetos.interactuables().add(a) a.modo(1) a.puedeCerrar(true) })})
-        self.pisables().forEach({lista => lista.forEach({ a => game.addVisual(a) a.animar() juego.mapaObjetos.pisables().add(a) })})
-
-        var y = self.mapaData().size() - 1
-        self.mapaData().forEach({ fila =>
-            var x = 0
-            fila.forEach({ celda =>
-                
-                self.procesarCelda(celda, x, y)
-
-                x = x + 1
-                if(y == 0 && x == 20){ 
-                    transition.desactive()  
-                }
-            })
-            y = y - 1
-        })
-    
-        fondo.image(self.background())
-        contadorMonedas.cargar()
     }
 
     method procesarCelda(celda, x, y) {
-        if (celda == 1) { self.crearPared(x, y) }
-        if (celda == 2) { self.crearMoneda(x, y) }
-        if (celda == 3) { self.crearSapo(x, y) }
-        if (celda == 4) { self.crearPincho(x, y) }
-        if (celda == 5) { self.crearSpawnPersonaje(x, y) }
-        if (celda == 6) { self.crearBloqueSeis(x, y) }
+        if (celda == 1)     { self.crearPared(x, y) }
+        if (celda == 2)     { self.crearMoneda(x, y) }
+        if (celda == 3)     { self.crearSapo(x, y) }
+        if (celda == 4)     { self.crearPincho(x, y) }
+        if (celda == 67)    { self.crearSpawnPersonaje(x, y) }
     }
 
     method crearPared(x, y) {
-        const pared = new Collision(position = game.at(x, y))
-        juego.mapaObjetos.paredes().add(pared)
+        juego.mapaObjetos.paredes().add(new Collision(position = game.at(x, y)))
     }
 
     method crearMoneda(x, y) {
-        const moneda = new Coins(position = game.at(x, y))
+        const moneda = new Moneda(position = game.at(x,y))
         juego.mapaObjetos.monedas().add(moneda)
         game.addVisual(moneda)
-        moneda.animar()
+        animadorGlobal.añadir(moneda)
     }
 
     method crearSapo(x, y) {
-        const sapo = new Sapo(position = game.at(x, y))
-        juego.mapaObjetos.enemigosActivos().add(sapo)
+        const sapo = new Sapo(position = game.at(x,y))
+        sapo.prepararVisuales()
         game.addVisual(sapo)
-        sapo.iniciarMovimiento()
+        gestorDeEnemigos.añadir(sapo)
     }
 
     method crearPincho(x, y) {
@@ -201,70 +141,104 @@ class Nivel {
         }
     }
 
-    method crearBloqueSeis(x, y) {
-    }
-
-    method limpiar() {
-        juego.mapaObjetos.paredes().clear()
-        juego.mapaObjetos.enemigosActivos().clear()
-        juego.mapaObjetos.monedas().clear()
-        juego.mapaObjetos.pinchos().clear()
-        juego.mapaObjetos.interactuables().clear()
-        juego.mapaObjetos.pisables().clear()
-        juego.mapaObjetos.destinoEnemigos().clear()
-        try {
-            fondoMusic.stop()
-        }
-        catch e : Exception {
-            console.println("Se ignoró un error de música en la limpieza")
-        }
-        game.clear()
-        //controles.configurar()
-        personaje.moviendose(true)
-        gestorNiveles.proximoNivel().cargar()
+    method crearAntorcha(x, y)
+    {
+        juego.mapaObjetos.paredes().add(new Collision(position = game.at(x,y)))
+        const antorcha = new AntorchaArr(position = game.at(x,y))
+        game.addVisual(antorcha)
+        animadorGlobal.añadir(antorcha)
     }
 }
 
-object nivel_1 inherits Nivel {
+object transition {
+    var property image = "transparente.png"
+    var property position = game.at(0, 0)
+    var frameActual = 0
 
-    override method background() = "nivel_2.png"
-    override method nivelActual() = 1
-    override method siguienteNivel() = nivel_2
+    method active()
+    {
+        personaje.moviendose(true)
+        game.addVisual(self)
 
+        game.onTick(10, "transition",
+        {
+            frameActual = frameActual + 1
 
+            if (frameActual < 26) {
+                self.image("transition_" + frameActual + ".png")
+            } 
+            else {
+                game.removeTickEvent("transition")
+                gestorNiveles.descargarNivel()
+                self.desactive()
+            }
+        })
+    }
+
+    
+    method desactive()
+    {
+        gestorNiveles.cargarNivelActual()
+        game.removeVisual(self)
+        game.addVisual(self)
+
+        game.onTick(10, "transition", {
+        frameActual = frameActual - 1
+            if (frameActual > 0) {
+                self.image("transition_" + frameActual + ".png")
+            } 
+            else
+            {
+                game.removeTickEvent("transition")
+                game.removeVisual(self)
+                personaje.moviendose(false)
+            }
+        })
+    }
+}
+
+class Fondo {
+    var property image = "mapa1.png"
+    var property position = game.at(0, 0)
+}
+
+class Nivel
+{
+    method background() = new Fondo(image = self.toString() + ".png")
+    method mapaData() = []
+    var property musicasFondo = ["fondo1.mp3", "fondo2.mp3"]
+
+    method interactuables() = [self.palancas()]
+    method pisables() = [self.teletransportes()] 
+
+    method palancas() = []
+    method teletransportes() = []
+
+    method musicaNivel() = musicasFondo.get( (0..musicasFondo.size()-1).anyOne() )
+}
+
+object nivel_1 inherits Nivel
+{
     override method palancas()  =  [new Palanca(position = game.at(3,3), listaObjetos = [0, 1]),
                                     new Palanca(position = game.at(16,5), listaObjetos = [2, 3])]
 
     override method mapaData() = [
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 5, 1, 1, 1, 1, 1, 1, 1],
-        [0, 0, 1, 1, 5, 1, 1, 0, 0, 1, 0, 0, 3, 0, 0, 0, 1, 0, 0, 1],
-        [0, 1, 1, 0, 0, 2, 1, 0, 0, 1, 1, 0, 3, 0, 0, 0, 1, 0, 0, 1],
-        [1, 1, 0, 3, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 1],
-        [1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 3, 3, 0, 0, 0, 0, 1],
-        [1, 3, 3, 3, 0, 0, 1, 1, 0, 0, 0, 0, 1, 3, 3, 0, 1, 1, 1, 1],
-        [1, 3, 8, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 3, 3, 0, 0, 0, 0, 1],
-        [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0],
+        [0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 0],
+        [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+        [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 67, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0],
+        [1, 0, 0, 0, 0, 5, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+        [0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 5, 0, 0, 0, 0, 0, 0, 4, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 4, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1],
-        [1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 2, 1, 2, 0, 1],
-        [1, 0, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 1],
-        [1, 0, 2, 1, 2, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 0, 2, 0, 0, 0, 0, 4, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 4, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
     ]
 }
 
-object nivel_2 inherits Nivel {
-
-    override method nivelActual() = 2
-    override method siguienteNivel() = nivel_3
-
+object nivel_2 inherits Nivel
+{
     override method palancas() = []
-
     override method teletransportes() =[new Portal(position = game.at(18,2), dirDestino = [6,4]),
                                         new Portal(position = game.at(6,4), dirDestino = [18,2])]
 
@@ -285,10 +259,6 @@ object nivel_2 inherits Nivel {
 
 object nivel_3 inherits Nivel {
 
-    override method nivelActual() = 3
-    override method siguienteNivel() = nivel_4
-
-
     override method palancas()  =  [new Palanca(position = game.at(3,3), listaObjetos = [0, 1]),
                                     new Palanca(position = game.at(16,5), listaObjetos = [2, 3])]
 
@@ -308,5 +278,5 @@ object nivel_3 inherits Nivel {
 }
 
 object nivel_4 {
-  
+
 }

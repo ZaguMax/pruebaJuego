@@ -7,7 +7,7 @@ import gestorAnimacion.*
 
 object gestorDeEnemigos
 {
-    const enemigosActivos = []
+    const property enemigosActivos = []
     var punteroEnemigo = 0
 
     method comenzarMovimiento()

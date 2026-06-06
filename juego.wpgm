@@ -14,57 +14,35 @@ program rpg
     game.cellSize(80)
 
     game.title("Mi RPG")
-    game.boardGround("nivel_2.png")
+    game.ground("celda.png")
 
     bancoDeImagenes.inicializar()
+    gestorNiveles.iniciarJuego()
 
-    const fondoMusic = game.sound("fondo" + (1..12).anyOne() +  ".mp3")
-    fondoMusic.shouldLoop(true)
-    fondoMusic.volume(0.3)
-    game.schedule(1000, { fondoMusic.play()} )
-    
-    /*const palanca = new Palanca(position = game.at(3,3), listaObjetos = [0, 1])
-    game.addVisual(palanca)
-    mapaObjetos.palancas().add(palanca)*/
-
-    gestorNiveles.cargarNivelActual()
-    //spawn.animar()
-    //contadorMonedas.cargar()
-
-    controles.configurar()
     game.start()
 }
 
-object mapaObjetos {
-  var property paredes = []
-  var property enemigosActivos = []
-  var property monedas = []
-  var property interactuables = []
-  var property pinchos = []
-  var property antorchas = []
-  var property destinoEnemigos = []
-  var property pisables = []
+object mapaObjetos
+{
+    var property paredes = []
+    var property monedas = []
+    var property interactuables = []
+    var property pinchos = []
+    var property antorchas = []
+    var property destinoEnemigos = []
+    var property pisables = []
 
     method hayEn(x, y, lista) {
         return lista.any({ c => c.position().x() == x && c.position().y() == y })
     }
 
-    /* method enemigosEn(x, y){
-        return enemigosActivos.filter({ enemy => enemy.position().x() == x && enemy.position().y() == y })
-    }*/
-
     method clear()
     {
         paredes.clear()
-        //enemigosActivos.clear()
         monedas.clear()
-        palancas.clear()
         pinchos.clear()
-        antorchas.clear()
+        interactuables.clear()
+        pisables.clear()
         destinoEnemigos.clear()
-    }
-
-    method terminarJuego() {
-        
     }
 }
