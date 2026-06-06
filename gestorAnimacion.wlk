@@ -4,37 +4,43 @@ class TileTransicion
     var property image
 }
 
-object animacionMovimiento
+class PoolDireccion
 {
-    method movimientoEntreCasillas(character, framesMaximos)
-    {
-        const nombreTick = "mov_casillas_" + character.identity().toString()
-        const destinoFinal = character.posicionDestino()
-        
-        game.onTick(50, nombreTick, 
-        {
-            character.frameActual(character.frameActual() + 1)
+    // El índice 0 vacío
+    const property framesA = [""]
+    const property framesB = [""]
+}
 
-            const frame = character.frameActual()
+object bancoDeImagenes
+{
+    const biblioteca = new Dictionary()
 
-            if (frame <= framesMaximos)
-            {
-                character.tileA().image(character.name() + "_" + character.dirActual() + "_a_" + frame + ".png")
-                character.tileB().image(character.name() + "_" + character.dirActual() + "_b_" + frame + ".png")
-            } 
-            else
-            {
-                game.removeTickEvent(nombreTick)
-                character.position(destinoFinal)
+    method inicializar() {
+        const enemigos = ["sapo", "mur"]
+        const direcciones = ["arr", "abj", "der", "izq"]
+
+        enemigos.forEach({ ene =>
+            direcciones.forEach({ dir =>
+                const pool = new PoolDireccion()
                 
-                character.tileA().image("transparente.png")
-                character.tileB().image("transparente.png")
+                (1 .. 21).forEach({ frame =>
+                    //const frame = 1 + (i * 4)
+                    pool.framesA().add(ene + "_" + dir + "_a_" + frame + ".png")
+                    pool.framesB().add(ene + "_" + dir + "_b_" + frame + ".png")
+                })
 
-                character.image("") 
-            }
+                biblioteca.put(ene + "_" + dir, pool)
+            })
         })
     }
 
+    method obtenerPool(enemigoName, direccion) {
+        return biblioteca.get(enemigoName + "_" + direccion)
+    }
+}
+
+object animacionMovimiento
+{
     method animacionMuerteEnemigo(character)
     {
         const nombreTick = "enemigoMuerte_" + character.identity().toString()
@@ -53,29 +59,70 @@ object animacionMovimiento
                 game.removeVisual(character)
             }
         })
+        
     }
 }
 
 object animadorGlobal
 {
-    const property elementosAAnimar = []
+    const property elementosSimples = []
+    const property enemigosMoviendose = []
+
+    method procesarMovimientoEnemigos()
+    {
+        const copiaEnemigos = [] + enemigosMoviendose
+
+        copiaEnemigos.forEach(
+        { 
+            enemigo =>
+
+            if (enemigo.poolActual() == null) {
+                enemigosMoviendose.remove(enemigo)
+                enemigo.frameActual(0)
+            }
+            else
+            {
+                enemigo.frameActual(enemigo.frameActual() + 1)
+                const frame = enemigo.frameActual()
+                const pool = enemigo.poolActual()
+
+                if (frame < pool.framesA().size()) {
+                    enemigo.tileA().image( enemigo.poolActual().framesA().get(frame) )
+                    enemigo.tileB().image( enemigo.poolActual().framesB().get(frame) )
+                } 
+                else
+                {
+                    enemigosMoviendose.remove(enemigo)
+                    
+                    enemigo.position(enemigo.destinoTemporal())
+                    enemigo.tileA().image("transparente.png")
+                    enemigo.tileB().image("transparente.png")
+                    enemigo.image("")
+                    enemigo.frameActual(0)
+                }
+            }
+        })
+    }
 
     method iniciar()
     {
-        game.onTick(100, "animacionGeneral", {
-            elementosAAnimar.forEach({ elemento => elemento.siguienteFrame() })
+        game.onTick(50, "relojGlobal",
+        {
+            elementosSimples.forEach({ elemento => elemento.siguienteFrame() })
+
+            if (!enemigosMoviendose.isEmpty()) self.procesarMovimientoEnemigos()
         })
     }
 
     method detener() {
-        game.removeTickEvent("animacionGeneral")
+        game.removeTickEvent("relojGlobal")
     }
     
     method añadir(elemento) {
-        elementosAAnimar.add(elemento)
+        elementosSimples.add(elemento)
     }
 
     method sacar(elemento) {
-        elementosAAnimar.remove(elemento)
+        elementosSimples.remove(elemento)
     }
 }

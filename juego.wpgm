@@ -5,6 +5,7 @@ import teclado.*
 import enemigos.*
 import objetos.*
 import niveles.*
+import gestorAnimacion.*
 
 
 program rpg
@@ -16,6 +17,7 @@ program rpg
     game.title("Mi RPG")
     game.boardGround("nivel_2.png")
 
+    bancoDeImagenes.inicializar()
 
     const fondoMusic = game.sound("fondo" + (1..12).anyOne() +  ".mp3")
     fondoMusic.shouldLoop(true)

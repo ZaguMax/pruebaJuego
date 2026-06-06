@@ -12,12 +12,14 @@ class AntorchaArr
 {
     var property position
     var frameActual = 1
-    method image() = "AntorchaArr_" + frameActual + ".png"
+
+    const property frames = (0..7).map({ i => "AntorchaArr_" + i + ".png" })
+
+    method image() = frames.get(frameActual)
 
     method siguienteFrame()
     {
         frameActual += 1
-
         if (frameActual > 7) frameActual = 1
     }
 }
@@ -134,13 +136,20 @@ class Moneda
 {
     var property position
     var frameActual = 1
+    var subReloj = 0
+
     method image() = "coin_" + frameActual + ".png"
 
     method siguienteFrame()
     {
-        frameActual += 1
+        subReloj += 1
 
-        if (frameActual > 5) frameActual = 1
+        if(subReloj >= 3)
+        {
+            subReloj = 0
+            frameActual += 1
+            if (frameActual > 5) frameActual = 1
+        }
     }
 
     method agarrar()

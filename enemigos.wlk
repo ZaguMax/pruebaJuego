@@ -8,33 +8,31 @@ import gestorAnimacion.*
 object gestorDeEnemigos
 {
     const enemigosActivos = []
+    var punteroEnemigo = 0
 
     method comenzarMovimiento()
     {
-        game.onTick(1500, "movimientoEnemigos",
+        game.onTick(1000, "movimientoSecuencialEnemigos",
         {
-            (0 .. enemigosActivos.size() - 1).forEach
-            ({ 
-                index =>
-                const enemigo = enemigosActivos.get(index)
-                
-                game.schedule(index * 50, { 
-                    enemigo.mover() 
-                })
-            })
+            if (!enemigosActivos.isEmpty()) 
+            {
+                const enemigo = enemigosActivos.get(punteroEnemigo)
+                enemigo.mover() 
+                punteroEnemigo = (punteroEnemigo + 1) % enemigosActivos.size()
+            }
         })
     }
 
     method detenerMovimiento() {
-        game.removeTickEvent("movimientoEnemigos")
+        game.removeTickEvent("movimientoSecuencialEnemigos")
     }
 
-    method añadir(enemigo) {
-        enemigosActivos.add(enemigo)
-    }
-
-    method sacar(enemigo) {
+    method añadir(enemigo) { enemigosActivos.add(enemigo) }
+    
+    method sacar(enemigo)
+    { 
         enemigosActivos.remove(enemigo)
+        punteroEnemigo = 0 
     }
 }
 
@@ -49,15 +47,25 @@ class Enemigo
 
     var property frameActual = 0 
     var property imagenActual = ""
+    var property destinoTemporal = null
 
     // Variables para animar
     const property tileA = new TileTransicion(position = game.at(0,0), image = "transparente.png")
     const property tileB = new TileTransicion(position = game.at(0,0), image = "transparente.png")
 
+    var property poolActual = null
+
     method prepararVisuales()
     {
         game.addVisual(tileA)
         game.addVisual(tileB)
+        self.actualizarRumbo("abj")
+    }
+
+    method actualizarRumbo(nuevaDir)
+    {
+        dirActual = nuevaDir
+        poolActual = bancoDeImagenes.obtenerPool(self.name(), dirActual)
     }
 
     method name() = ""
@@ -92,12 +100,13 @@ class Enemigo
 
     method inicializarAnimacion()
     {
-        frameActual = 0 
+        frameActual = 0
+        destinoTemporal = self.posicionDestino()
         
         tileA.position(game.at(position.x(), position.y()))
         tileA.image(self.name() + "_" + dirActual + "_a_1.png")
 
-        tileB.position(game.at(self.posicionDestino().x(), self.posicionDestino().y()))
+        tileB.position(destinoTemporal)
         tileB.image(self.name() + "_" + dirActual + "_b_1.png")
     
         self.image("transparente.png") 
@@ -105,10 +114,9 @@ class Enemigo
 
     method mover()
     {
-        if (!estaVivo)
-        {
-            return
-        }
+        if (!estaVivo) return null
+
+        if(animadorGlobal.enemigosMoviendose().contains(self)) return null
 
         const dx = personaje.position().x() - position.x()
         const dy = personaje.position().y() - position.y()
@@ -119,29 +127,30 @@ class Enemigo
 
         if (numeroAleatorio == 1)
         {
-            if (self.puedeMoverseA(dirX)) dirActual = dirX
-            else if (self.puedeMoverseA(dirY)) dirActual = dirY 
+            if (self.puedeMoverseA(dirX)) self.actualizarRumbo(dirX)
+            else if (self.puedeMoverseA(dirY)) self.actualizarRumbo(dirY)
         }
         else
         {
-            if (self.puedeMoverseA(dirY)) dirActual = dirY
-            else if (self.puedeMoverseA(dirX)) dirActual = dirX
+            if (self.puedeMoverseA(dirY)) self.actualizarRumbo(dirY)
+            else if (self.puedeMoverseA(dirX)) self.actualizarRumbo(dirX)
         }
 
     
         if (self.puedeMoverseA(dirActual))
         {
             self.inicializarAnimacion()
-            animacionMovimiento.movimientoEntreCasillas(self, 21)
+            animadorGlobal.enemigosMoviendose().add(self)
         }
 
-        return 
+        return null
     }
 
     method matar()
     {
         estaVivo = false
         gestorDeEnemigos.sacar(self)
+        animadorGlobal.enemigosMoviendose().remove(self)
 
         tileA.image("transparente.png")
         tileB.image("transparente.png")
