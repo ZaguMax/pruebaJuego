@@ -24,7 +24,6 @@ object bancoDeImagenes
                 const pool = new PoolDireccion()
                 
                 (1 .. 21).forEach({ frame =>
-                    //const frame = 1 + (i * 4)
                     pool.framesA().add(ene + "_" + dir + "_a_" + frame + ".png")
                     pool.framesB().add(ene + "_" + dir + "_b_" + frame + ".png")
                 })
@@ -99,6 +98,7 @@ object animadorGlobal
                     enemigo.tileB().image("transparente.png")
                     enemigo.image("")
                     enemigo.frameActual(0)
+                    enemigo.destinoTemporal(null)
                 }
             }
         })

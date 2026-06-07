@@ -12,13 +12,13 @@ object gestorDeEnemigos
 
     method comenzarMovimiento()
     {
-        game.onTick(1000, "movimientoSecuencialEnemigos",
+        game.onTick(200, "movimientoSecuencialEnemigos",
         {
             if (!enemigosActivos.isEmpty()) 
             {
                 const enemigo = enemigosActivos.get(punteroEnemigo)
                 enemigo.mover() 
-                punteroEnemigo = (punteroEnemigo + 1) % enemigosActivos.size()
+                punteroEnemigo = (0..enemigosActivos.size() - 1).anyOne()
             }
         })
     }
@@ -33,6 +33,12 @@ object gestorDeEnemigos
     { 
         enemigosActivos.remove(enemigo)
         punteroEnemigo = 0 
+    }
+
+    method estaOcupadaOReservada(posicionDestino) {
+        return enemigosActivos.any({ enemigo => 
+            enemigo.position() == posicionDestino or enemigo.destinoTemporal() == posicionDestino
+        })
     }
 }
 
@@ -59,7 +65,7 @@ class Enemigo
     {
         game.addVisual(tileA)
         game.addVisual(tileB)
-        self.actualizarRumbo("abj")
+        self.actualizarRumbo("izq")
     }
 
     method actualizarRumbo(nuevaDir)
@@ -91,12 +97,15 @@ class Enemigo
     }
 
     method puedeMoverseA(dir)
-    {
-        const deltas = self.deltaDir(dir)
-        const nx = position.x() + deltas.get(0)
-        const ny = position.y() + deltas.get(1)
-        return !mapaObjetos.hayEn(nx, ny, mapaObjetos.paredes())
-    }
+{
+    const deltas = self.deltaDir(dir)
+    const nx = position.x() + deltas.get(0)
+    const ny = position.y() + deltas.get(1)
+    const posicionObjetivo = game.at(nx, ny)
+    const sinPared = !mapaObjetos.hayEn(nx, ny, mapaObjetos.paredes())
+    const sinEnemigos = !gestorDeEnemigos.estaOcupadaOReservada(posicionObjetivo)
+    return sinPared and sinEnemigos
+}
 
     method inicializarAnimacion()
     {
@@ -150,6 +159,7 @@ class Enemigo
     {
         estaVivo = false
         gestorDeEnemigos.sacar(self)
+        destinoTemporal = null
         animadorGlobal.enemigosMoviendose().remove(self)
 
         tileA.image("transparente.png")
@@ -161,6 +171,16 @@ class Enemigo
 
         frameActual = 0
         animacionMovimiento.animacionMuerteEnemigo(self)
+    }
+
+    method actualizar() 
+    {
+        game.removeVisual(self)
+        game.addVisual(self)
+        game.removeVisual(tileA)
+        game.addVisual(tileA)
+        game.removeVisual(tileB)
+        game.addVisual(tileB)
     }
 }
 
