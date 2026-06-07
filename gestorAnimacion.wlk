@@ -85,6 +85,10 @@ object animadorGlobal
                 const frame = enemigo.frameActual()
                 const pool = enemigo.poolActual()
 
+                if (frame == 10) {
+                    enemigo.position(enemigo.destinoTemporal())
+                }
+
                 if (frame < pool.framesA().size()) {
                     enemigo.tileA().image( enemigo.poolActual().framesA().get(frame) )
                     enemigo.tileB().image( enemigo.poolActual().framesB().get(frame) )
@@ -93,7 +97,7 @@ object animadorGlobal
                 {
                     enemigosMoviendose.remove(enemigo)
                     
-                    enemigo.position(enemigo.destinoTemporal())
+                    //enemigo.position(enemigo.destinoTemporal())
                     enemigo.tileA().image("transparente.png")
                     enemigo.tileB().image("transparente.png")
                     enemigo.image("")

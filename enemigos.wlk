@@ -47,6 +47,7 @@ class Enemigo
 {
     // Estados
     var estaVivo = true
+    var property esperando = false
 
     var property position
     var property dirActual = "abj"
@@ -124,7 +125,7 @@ class Enemigo
     method mover()
     {
         if (!estaVivo) return null
-
+        if (self.esperando()) return null
         if(animadorGlobal.enemigosMoviendose().contains(self)) return null
 
         const dx = personaje.position().x() - position.x()
@@ -150,6 +151,10 @@ class Enemigo
         {
             self.inicializarAnimacion()
             animadorGlobal.enemigosMoviendose().add(self)
+        }
+        else {
+            self.esperando(true)
+            game.schedule(1500, { self.esperando(false) })
         }
 
         return null

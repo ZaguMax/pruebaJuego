@@ -89,7 +89,7 @@ object personaje {
       posDestinoX = posOrigenX + deltas.get(0)
       posDestinoY = posOrigenY + deltas.get(1)
 
-      //mapaObjetos.enemigosEn(posDestinoX, posDestinoY).forEach({ e => e.matar() })
+      mapaObjetos.enemigosEn(posDestinoX, posDestinoY).forEach({ e => e.matar() })
 
       const sword = game.sound("sword" + (1..3).anyOne() + ".mp3")
       sword.volume(0.3)

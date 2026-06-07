@@ -31,9 +31,14 @@ object mapaObjetos
     var property antorchas = []
     var property destinoEnemigos = []
     var property pisables = []
+    var property enemigosActivos = gestorDeEnemigos.enemigosActivos() 
 
     method hayEn(x, y, lista) {
         return lista.any({ c => c.position().x() == x && c.position().y() == y })
+    }
+
+    method enemigosEn(x, y) {
+        return enemigosActivos.filter({e => e.position() == game.at(x, y)})
     }
 
     method clear()
