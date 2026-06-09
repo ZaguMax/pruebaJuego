@@ -96,8 +96,6 @@ object animadorGlobal
                 else
                 {
                     enemigosMoviendose.remove(enemigo)
-                    
-                    //enemigo.position(enemigo.destinoTemporal())
                     enemigo.tileA().image("transparente.png")
                     enemigo.tileB().image("transparente.png")
                     enemigo.image("")

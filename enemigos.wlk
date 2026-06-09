@@ -66,7 +66,7 @@ class Enemigo
     {
         game.addVisual(tileA)
         game.addVisual(tileB)
-        self.actualizarRumbo("izq")
+        self.actualizarRumbo("abj")
     }
 
     method actualizarRumbo(nuevaDir)
@@ -195,7 +195,29 @@ class Sapo inherits Enemigo
     override method name() = "sapo"
 }
 
-class Murcielago inherits Enemigo
-{
+class Mur inherits Enemigo {
+
     override method name() = "mur"
+
+    override method mover() {
+        if (!estaVivo) return null
+        if (self.esperando()) return null
+        if (animadorGlobal.enemigosMoviendose().contains(self)) return null
+
+        if (!self.puedeMoverseA(dirActual)) {
+            const nuevoRumbo = if (dirActual == "abj") "arr" else "abj"
+            self.actualizarRumbo(nuevoRumbo)
+        }
+
+        if (self.puedeMoverseA(dirActual)) {
+            self.inicializarAnimacion()
+            animadorGlobal.enemigosMoviendose().add(self)
+        } 
+        else {
+            self.esperando(true)
+            game.schedule(1500, { self.esperando(false) })
+        }
+
+        return null
+    }
 }

@@ -108,6 +108,7 @@ object gestorNiveles
         if (celda == 2)     { self.crearMoneda(x, y) }
         if (celda == 3)     { self.crearSapo(x, y) }
         if (celda == 4)     { self.crearPincho(x, y) }
+        if (celda == 5)     { self.crearMurcielago(x, y)}         
         if (celda == 67)    { self.crearSpawnPersonaje(x, y) }
     }
 
@@ -151,6 +152,13 @@ object gestorNiveles
         const antorcha = new AntorchaArr(position = game.at(x,y))
         game.addVisual(antorcha)
         animadorGlobal.añadir(antorcha)
+    }
+
+    method crearMurcielago(x, y) {
+        const mur = new Mur(position = game.at(x,y))
+        mur.prepararVisuales()
+        game.addVisual(mur)
+        gestorDeEnemigos.añadir(mur)
     }
 }
 
@@ -231,11 +239,11 @@ object nivel_1 inherits Nivel
     override method mapaData() = [
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 5, 0, 0, 0, 0, 0, 0, 4, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 4, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
         [1, 0, 67, 0, 0, 0, 0, 0, 4, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1],
         [1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 2, 1, 2, 0, 1],
         [1, 0, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 1],
-        [1, 0, 2, 1, 2, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 2, 1, 2, 0, 0, 1, 1, 1, 1, 1, 1, 0, 5, 0, 0, 0, 0, 1],
         [1, 0, 0, 2, 0, 0, 0, 0, 4, 2, 0, 0, 0, 3, 0, 0, 0, 0, 0, 1],
         [1, 0, 0, 0, 0, 0, 0, 0, 4, 2, 0, 0, 0, 3, 0, 0, 0, 0, 0, 1],
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]

@@ -36,6 +36,7 @@ class Pinchos{
     var property image = "PinchosCerrados.png"
     method abrir() {
         if (modo == 1 && puedeCerrar){frameActual = 0
+        mapaObjetos.enemigosEn(position.x(),position.y() ).forEach({ e => e.matar() })
             game.onTick(100, "PinchoAbriendo", {
                 frameActual = frameActual + 1
                 if (frameActual < 7) {
