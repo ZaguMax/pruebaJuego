@@ -27,10 +27,8 @@ object mapaObjetos
     var property paredes = []
     var property monedas = []
     var property interactuables = []
-    var property pinchos = []
-    var property antorchas = []
-    var property destinoEnemigos = []
     var property pisables = []
+    var property activables = []
     var property enemigosActivos = gestorDeEnemigos.enemigosActivos() 
 
     method hayEn(x, y, lista) {
@@ -45,9 +43,8 @@ object mapaObjetos
     {
         paredes.clear()
         monedas.clear()
-        pinchos.clear()
+        activables.clear()
         interactuables.clear()
         pisables.clear()
-        destinoEnemigos.clear()
     }
 }

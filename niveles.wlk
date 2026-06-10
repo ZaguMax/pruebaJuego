@@ -1,5 +1,5 @@
 import gestorAnimacion.*
-import juego.*
+import juego.mapaObjetos
 import personaje.*
 import enemigos.*
 import objetos.*
@@ -108,12 +108,35 @@ object gestorNiveles
         if (celda == 2)     { self.crearMoneda(x, y) }
         if (celda == 3)     { self.crearSapo(x, y) }
         if (celda == 4)     { self.crearPincho(x, y) }
-        if (celda == 5)     { self.crearMurcielago(x, y)}         
+        if (celda == 5)     { self.crearMurcielago(x, y)}
+        if (celda == 6)     { self.crearPuerta(x, y, "Horizontal") }
+        if (celda == 7)     { self.crearPuerta(x, y, "Vertical") }        
         if (celda == 67)    { self.crearSpawnPersonaje(x, y) }
     }
 
     method crearPared(x, y) {
         juego.mapaObjetos.paredes().add(new Collision(position = game.at(x, y)))
+    }
+
+    method crearPuerta(x, y, dir) {
+        var posDir = null
+        var imagenPredeterminada = null
+        const collision = new Collision(position = game.at(x, y))
+        if (dir == "Horizontal"){
+            posDir = game.at(x-1, y)
+            imagenPredeterminada = "PuertaHorizontal_1.png"
+            mapaObjetos.paredes().add(collision)
+
+        }
+        else
+        { 
+            posDir = game.at(x, y-1)
+            imagenPredeterminada = "PuertaVertical_1.png"
+            mapaObjetos.paredes().add(new Collision(position = game.at(x, y)))
+        }
+        const puerta = new Puerta(position = posDir, direccion = dir, image = imagenPredeterminada, collision = collision)
+            juego.mapaObjetos.activables().add(puerta)
+            game.addVisual(puerta)
     }
 
     method crearMoneda(x, y) {
@@ -132,7 +155,7 @@ object gestorNiveles
 
     method crearPincho(x, y) {
         const pincho = new Pinchos(position = game.at(x, y))
-        juego.mapaObjetos.pinchos().add(pincho)
+        juego.mapaObjetos.activables().add(pincho)
         game.addVisual(pincho)
     }
 
@@ -220,7 +243,7 @@ class Nivel
 {
     method background() = new Fondo(image = self.toString() + ".png")
     method mapaData() = []
-    var property musicasFondo = ["fondo1.mp3", "fondo2.mp3"]
+    method musicasFondo() = ["fondo1.mp3", "fondo2.mp3"]
 
     method interactuables() = [self.palancas()]
     method pisables() = [self.teletransportes()] 
@@ -228,11 +251,12 @@ class Nivel
     method palancas() = []
     method teletransportes() = []
 
-    method musicaNivel() = musicasFondo.get( (0..musicasFondo.size()-1).anyOne() )
+    method musicaNivel() = self.musicasFondo().get( (0..self.musicasFondo().size()-1).anyOne() )
 }
 
 object nivel_1 inherits Nivel
 {
+    override method musicasFondo() = ["fondo1.mp3","fondo2.mp3","fondo3.mp3"]
     override method palancas()  =  [new Palanca(position = game.at(3,3), listaObjetos = [0, 1]),
                                     new Palanca(position = game.at(16,5), listaObjetos = [2, 3])]
 
@@ -240,9 +264,9 @@ object nivel_1 inherits Nivel
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
         [1, 0, 0, 0, 0, 0, 0, 0, 4, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 67, 0, 0, 0, 0, 0, 4, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1],
+        [1, 0, 67, 0, 0, 0, 6, 0, 4, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1],
         [1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 2, 1, 2, 0, 1],
-        [1, 0, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 1],
+        [1, 0, 0, 2, 0, 7, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 1],
         [1, 0, 2, 1, 2, 0, 0, 1, 1, 1, 1, 1, 1, 0, 5, 0, 0, 0, 0, 1],
         [1, 0, 0, 2, 0, 0, 0, 0, 4, 2, 0, 0, 0, 3, 0, 0, 0, 0, 0, 1],
         [1, 0, 0, 0, 0, 0, 0, 0, 4, 2, 0, 0, 0, 3, 0, 0, 0, 0, 0, 1],

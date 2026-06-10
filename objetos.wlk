@@ -54,7 +54,6 @@ class Objeto {
 
 class Collision inherits Objeto {}
 
-// Las antorchas usan directamente el animarLoop heredado
 class AntorchaArr inherits Objeto(nombre = "AntorchaArr", image = "AntorchaArr_1.png") {
     method iniciar() {
         self.animarLoop(8, 100)
@@ -77,7 +76,6 @@ class Pinchos inherits Objeto(nombre = "PinchosAbriendo", image = "PinchosCerrad
             puedeCerrar = false
             mapaObjetos.enemigosEn(position.x(), position.y()).forEach({ e => e.matar() })
             
-            // Llama a la animación hacia adelante de la madre
             self.animar(7, 100, {
                 modo = 0
                 self.image("PinchosAbiertos.png")
@@ -90,7 +88,6 @@ class Pinchos inherits Objeto(nombre = "PinchosAbriendo", image = "PinchosCerrad
         if (modo == 0 && !puedeCerrar) {
             puedeCerrar = true
             
-            // Llama a la animación reversa de la madre
             self.animarReverse(7, 100, {
                 modo = 1
                 self.image("PinchosCerrados.png")
@@ -117,8 +114,7 @@ class Palanca inherits Objeto(nombre = "palanca", image = "PalancaCerrada.png") 
                 modo = 0
                 self.image("PalancaAbierta.png")
             })
-            // Desencadena la apertura de sus pinchos asociados
-            listaObjetos.forEach({ objeto => mapaObjetos.pinchos().get(objeto).abrir() })
+            listaObjetos.forEach({ objeto => mapaObjetos.activables().get(objeto).abrir() })
         }
     }
 
@@ -130,8 +126,7 @@ class Palanca inherits Objeto(nombre = "palanca", image = "PalancaCerrada.png") 
                 modo = 1
                 self.image("PalancaCerrada.png")
             })
-            // Desencadena el cierre de sus pinchos asociados
-            listaObjetos.forEach({ objeto => mapaObjetos.pinchos().get(objeto).cerrar() })
+            listaObjetos.forEach({ objeto => mapaObjetos.activables().get(objeto).cerrar() })
         }
     }
 }
@@ -139,7 +134,6 @@ class Palanca inherits Objeto(nombre = "palanca", image = "PalancaCerrada.png") 
 class Moneda inherits Objeto(nombre = "coin") {
     var subReloj = 0
 
-    // Mantenemos tu lógica personalizada de frames lentos para la moneda
     override method image() = nombre + "_" + frameActual + ".png"
 
     method siguienteFrame() {
@@ -157,7 +151,7 @@ class Moneda inherits Objeto(nombre = "coin") {
 
         mapaObjetos.monedas().remove(self)
         animadorGlobal.sacar(self)
-        game.removeVisual(self) // Eliminado el removeVisual duplicado que tenías
+        game.removeVisual(self) 
     }
 }
 
@@ -204,6 +198,54 @@ class Portal inherits Objeto(nombre = "portal", image = "portal_1.png") {
     }
 }
 
-class Puerta inherits Objeto{
-    
+class Puerta inherits Objeto(nombre = "Puerta", image = "PuertaHorizontal_1.png"){
+    const direccion
+    var property modo = 1
+    var property puedeCerrar = true
+    const collision
+
+    method collisionDir(){
+        if (direccion == "Horizontal"){
+            return (game.at(position.x()+1, position.y()))
+        } 
+        else {
+            return (game.at(position.x(), position.y()+1))
+        }
+    }
+
+    method cambiarNombre(){
+        if (direccion == "Horizontal"){
+            self.nombre("PuertaHorizontal")
+        } 
+        else {
+            self.nombre("PuertaVertical")
+            }
+    }
+
+    method abrir() {
+        self.cambiarNombre()
+        if (modo == 1 && puedeCerrar) {
+            puedeCerrar = false
+            
+            self.animar(9, 100, {
+                modo = 0
+                self.image("" + nombre + "_8.png")
+                mapaObjetos.paredes().remove(collision)
+            })
+        }
+    }
+
+    method cerrar() {
+        self.cambiarNombre()
+        if (modo == 0 && !puedeCerrar) {
+            puedeCerrar = true
+            mapaObjetos.enemigosEn(self.collisionDir().x(), self.collisionDir().y()).forEach({ e => e.matar() })
+            
+            self.animarReverse(9, 100, {
+                modo = 1
+                self.image("" + nombre + "_1.png")
+                mapaObjetos.paredes().add(collision)
+            })
+        }
+    }
 }
