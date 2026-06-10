@@ -23,6 +23,11 @@ object gestorDeEnemigos
         })
     }
 
+    method limpiarTodo() {
+        enemigosActivos.clear()
+        punteroEnemigo = 0
+    }
+
     method detenerMovimiento() {
         game.removeTickEvent("movimientoSecuencialEnemigos")
     }
@@ -200,10 +205,12 @@ class Mur inherits Enemigo {
     override method name() = "mur"
 
     override method mover() {
+
+        
         if (!estaVivo) return null
         if (self.esperando()) return null
         if (animadorGlobal.enemigosMoviendose().contains(self)) return null
-
+        
         if (!self.puedeMoverseA(dirActual)) {
             const nuevoRumbo = if (dirActual == "abj") "arr" else "abj"
             self.actualizarRumbo(nuevoRumbo)
