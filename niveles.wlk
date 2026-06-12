@@ -6,27 +6,33 @@ import objetos.*
 import teclado.*
 
 /*
-    *  Este archivo contiene los datos de los niveles del juego.
-    *  Cada nivel es representado por una matriz de enteros, donde cada entero representa un objeto o elemento del juego:
-    *  - 0: Celda vacía
-    *  - 0: Pared
-    *  - 2: Moneda
-    *  - 3: Sapo (enemigo)
-    *  - 4: Pinchos
-    *  - 67: Personaje (punto de inicio)
-    *  - 0: Pinchos
-    *
-    *  Puedes agregar más niveles siguiendo el mismo formato.
-*/
+ * Este archivo contiene los datos de los niveles del juego.
+ * Cada nivel es representado por una matriz de enteros, donde cada entero representa un objeto o elemento del juego:
+ * - 0: Celda vacía
+ * - 1: Pared
+ * - 2: Moneda
+ * - 3: Sapo (enemigo)
+ * - 4: Pinchos (Abierto)
+ * - 5: Pinchos (Cerrado)
+ * - 6: Murciélago (enemigo)
+ * - 7: Puerta Horizontal (Abierto)
+ * - 8: Puerta Horizontal (Cerrado)
+ * - 9: Puerta Vertical (Abierto)
+ * - 10: Puerta Vertical (Cerrado)
+ * - 11: Caja
+ * - 67: Personaje (punto de inicio)
+ *
+ * Puedes agregar más niveles siguiendo el mismo formato.
+ */
 
 object gestorNiveles
 {
     var property nivelActual = 1
-    const niveles = [null, nivel_1, nivel_2, nivel_3]
+    const niveles = [null, pantallaDeTitulo, nivel_1, nivel_2, nivel_3, nivel_4]
     var property musicaActual = null
 
     method pasarNivel() {
-        nivelActual = nivelActual + 1 //niveles.indexOf(nivelActual)
+        nivelActual = nivelActual + 1 
         transition.active()
     }
 
@@ -56,7 +62,10 @@ object gestorNiveles
         self.construirMapa(mapa, nivel)
 
         // Crear interfaz
-        contadorMonedas.cargar()
+        if (nivelActual != 1){
+            contadorMonedas.cargar()  
+        }
+        
 
         // inicializacion de animaciones y movimiento de enemigos
         animadorGlobal.iniciar()
@@ -74,7 +83,12 @@ object gestorNiveles
 
 
         personaje.moviendose(false)
-        controles.configurar()
+        if (nivelActual != 1){
+            controles.configurar()
+        }
+        else {
+            controlesMenu.configurar()
+        }
     }
 
     method construirMapa(mapa, nivel)
@@ -100,6 +114,11 @@ object gestorNiveles
                 self.procesarCelda(celda, posX, posY)
             })
         })
+
+        if (nivelActual > 2){
+            personaje.actualizar()
+        }
+        
         gestorDeEnemigos.enemigosActivos().forEach({e => e.actualizar()})
         mapaObjetos.cajas().forEach({c => c.actualizar()})
     }
@@ -108,11 +127,14 @@ object gestorNiveles
         if (celda == 1)     { self.crearPared(x, y) }
         if (celda == 2)     { self.crearMoneda(x, y) }
         if (celda == 3)     { self.crearSapo(x, y) }
-        if (celda == 4)     { self.crearPincho(x, y) }
-        if (celda == 5)     { self.crearMurcielago(x, y)}
-        if (celda == 6)     { self.crearPuerta(x, y, "Horizontal") }
-        if (celda == 7)     { self.crearPuerta(x, y, "Vertical") }  
-        if (celda == 8)     { self.crearCaja(x,y)} 
+        if (celda == 4)     { self.crearPincho(x, y, "Abierto") }
+        if (celda == 5)     { self.crearPincho(x, y, "Cerrado") }
+        if (celda == 6)     { self.crearMurcielago(x, y)}
+        if (celda == 7)     { self.crearPuerta(x, y, "Horizontal", "Abierto") }
+        if (celda == 8)     { self.crearPuerta(x, y, "Horizontal", "Cerrado") }
+        if (celda == 9)     { self.crearPuerta(x, y, "Vertical", "Abierto") }  
+        if (celda == 10)    { self.crearPuerta(x, y, "Vertical", "Cerrado") }  
+        if (celda == 11)    { self.crearCaja(x,y)} 
         if (celda == 67)    { self.crearSpawnPersonaje(x, y) }
     }
 
@@ -128,7 +150,7 @@ object gestorNiveles
         juego.mapaObjetos.paredes().add(new Collision(position = game.at(x, y)))
     }
 
-    method crearPuerta(x, y, dir) {
+    method crearPuerta(x, y, dir, estado) {
         var posDir = null
         var imagenPredeterminada = null
         const collision = new Collision(position = game.at(x, y))
@@ -136,16 +158,17 @@ object gestorNiveles
             posDir = game.at(x-1, y)
             imagenPredeterminada = "PuertaHorizontal_1.png"
             mapaObjetos.paredes().add(collision)
-
         }
-        else
-        { 
+        else { 
             posDir = game.at(x, y-1)
             imagenPredeterminada = "PuertaVertical_1.png"
-            mapaObjetos.paredes().add(new Collision(position = game.at(x, y)))
+            mapaObjetos.paredes().add(collision) 
         }
         const puerta = new Puerta(position = posDir, direccion = dir, image = imagenPredeterminada, collision = collision)
             juego.mapaObjetos.activables().add(puerta)
+            if (estado == "Abierto"){
+                puerta.abrir()
+            }
             game.addVisual(puerta)
     }
 
@@ -163,17 +186,21 @@ object gestorNiveles
         gestorDeEnemigos.añadir(sapo)
     }
 
-    method crearPincho(x, y) {
+    method crearPincho(x, y, estado) {
         const pincho = new Pinchos(position = game.at(x, y))
         juego.mapaObjetos.activables().add(pincho)
+        if (estado == "Abierto"){
+                pincho.abrir()
+            }
         game.addVisual(pincho)
     }
 
     method crearSpawnPersonaje(x, y) {
-        if (self.nivelActual() == 1) {
+        if (self.nivelActual() == 2) {
             spawn.position(game.at(x - 1, y))
-            spawn.animar() 
-        } else {
+            game.schedule(1000, {spawn.animar() })
+        } 
+        else {
             game.addVisual(personaje)
             personaje.position(game.at(x, y))
         }
@@ -251,8 +278,18 @@ class Fondo {
 
 class Nivel
 {
-    method background() = new Fondo(image = self.toString() + ".png")
-    method mapaData() = []
+    var property background = new Fondo(image = self.toString() + ".png")
+    method mapaData() = [
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
     method musicasFondo() = ["fondo1.mp3", "fondo2.mp3"]
 
     method interactuables() = [self.palancas()]
@@ -267,21 +304,24 @@ class Nivel
 object nivel_1 inherits Nivel
 {
     override method musicasFondo() = ["fondo1.mp3","fondo2.mp3","fondo3.mp3"]
-    override method palancas()  =  [new Palanca(position = game.at(3,3), listaObjetos = [0, 1]),
-                                    new Palanca(position = game.at(16,5), listaObjetos = [2, 3])]
+    override method palancas()  =  [new Palanca(position = game.at(1,2), listaObjetos = [0]),
+                                    new Palanca(position = game.at(6,7), listaObjetos = [1]),
+                                    new Palanca(position = game.at(17,2), listaObjetos = [])]
+
+    override method teletransportes() =[new Portal(position = game.at(10,1), dirDestino = [17,6]),
+                                        new Portal(position = game.at(17,6), dirDestino = [10,1])]
 
     override method mapaData() = [
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 4, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 67, 8, 0, 0, 6, 0, 4, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1],
-        [1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 2, 1, 2, 0, 1],
-        [1, 0, 0, 2, 0, 7, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 1],
-        [1, 0, 2, 1, 2, 0, 0, 1, 1, 1, 1, 1, 1, 0, 5, 0, 0, 0, 0, 1],
-        [1, 0, 0, 2, 0, 0, 0, 0, 4, 2, 0, 0, 0, 3, 0, 0, 0, 0, 0, 1],
-        [1, 0, 0, 0, 0, 0, 0, 0, 4, 2, 0, 0, 0, 3, 0, 0, 0, 0, 0, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-    ]
+        [0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ],
+        [0 , 0 , 0 , 0 , 0 , 1 , 1 , 1 , 0 , 0 , 0 , 0 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 ],
+        [0 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 0 , 1 , 1 , 0 , 0 , 0 , 0 , 1 , 1 ],
+        [1 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 1 ],
+        [1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 1 ],
+        [1 , 67, 0 , 0 , 0 , 0 , 0 , 0 , 1 , 1 , 0 , 0 , 1 , 1 , 1 , 4 , 1 , 1 , 1 , 1 ],
+        [1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 0 , 1 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 1 , 1 ],
+        [1 , 1 , 0 , 0 , 11, 4 , 0 , 0 , 3 , 0 , 1 , 1 , 0 , 0 , 1 , 0 , 6 , 1 , 0 , 1 ],
+        [1 , 0 , 0 , 11, 0 , 1 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 1 , 0 , 0 , 1 , 0 , 1 ],
+        [1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 1 , 1 , 1 , 1 , 1 ]]
 }
 
 object nivel_2 inherits Nivel
@@ -297,7 +337,7 @@ object nivel_2 inherits Nivel
         [0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1],
         [0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1],
         [1, 0, 0, 67, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 5, 0, 0, 3, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0],
+        [1, 0, 6, 0, 0, 3, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0],
         [1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1],
         [0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -325,6 +365,57 @@ object nivel_3 inherits Nivel {
 
 }
 
-object nivel_4 {
+object nivel_4 inherits Nivel {
+    override method musicasFondo() = ["fondo1.mp3","fondo2.mp3","fondo3.mp3"]
+    override method palancas()  =  [new Palanca(position = game.at(3,2), listaObjetos = [0, 3, 4]),
+                                    new Palanca(position = game.at(3,4), listaObjetos = [1, 2, 4]),
+                                    new Palanca(position = game.at(3,6), listaObjetos = [0, 1])]
 
+    override method mapaData() = [
+        [0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ],
+        [0 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ],
+        [0 , 1 , 1 , 0 , 0 , 0 , 0 , 1 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ],
+        [0 , 1 , 0 , 1 , 0 , 0 , 0 , 67 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ],
+        [0 , 1 , 0 , 0 , 6 , 2 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 1 , 1 , 1 , 1 , 1 , 0 ],
+        [0 , 1 , 0 , 1 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 1 , 0 ],
+        [0 , 1 , 0 , 0 , 0 , 2 , 0 , 0 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 0 , 1 , 0 ],
+        [0 , 1 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 10, 10, 10, 10, 9 , 11, 0 , 0 , 1 , 1 , 0 ],
+        [0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 ],
+        [0 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ]]
+}
+
+object pantallaDeTitulo inherits Nivel {
+
+    var opcionActual = 0
+    const menuButtons = ["menu_NewGame.png", "menu_Continue.png", "menu_Options.png", "menu_Exit.png"]
+    const fondo = new Fondo(image = "menu_NewGame.png")
+    
+    override method musicasFondo() = ["menuMusic.mp3"]
+    override method background() = fondo
+
+    method opcionSiguiente() {
+        opcionActual = opcionActual + 1
+        if (opcionActual > 3) {
+            opcionActual = 0
+        }
+        
+        fondo.image(menuButtons.get(opcionActual))
+    }
+
+    method opcionAnterior() {
+        opcionActual = opcionActual - 1
+        if (opcionActual < 0) {
+            opcionActual = 3
+        }
+        fondo.image(menuButtons.get(opcionActual))
+    }
+
+    method aceptar() {
+        if(opcionActual == 0){
+            gestorNiveles.pasarNivel()
+        }
+        if (opcionActual == 3){
+            game.stop()
+        }
+    }
 }

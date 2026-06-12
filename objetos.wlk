@@ -71,6 +71,19 @@ class Pinchos inherits Objeto(nombre = "PinchosAbriendo", image = "PinchosCerrad
     var property puedeCerrar = true
     const collision = new Collision(position = position)
 
+    method actuar() {
+        if (modo == 1) {
+            if (puedeCerrar) {
+                self.abrir()
+            }
+        }
+        if (modo == 0) {
+            if (!puedeCerrar) {
+                self.cerrar()
+            }
+        }
+    }
+
     method abrir() {
         if (modo == 1 && puedeCerrar) {
             puedeCerrar = false
@@ -86,7 +99,7 @@ class Pinchos inherits Objeto(nombre = "PinchosAbriendo", image = "PinchosCerrad
 
     method cerrar() {
         if (modo == 0 && !puedeCerrar) {
-            puedeCerrar = true
+            puedeCerrar = true 
             
             self.animarReverse(7, 100, {
                 modo = 1
@@ -114,7 +127,7 @@ class Palanca inherits Objeto(nombre = "palanca", image = "PalancaCerrada.png") 
                 modo = 0
                 self.image("PalancaAbierta.png")
             })
-            listaObjetos.forEach({ objeto => mapaObjetos.activables().get(objeto).abrir() })
+            listaObjetos.forEach({ objeto => mapaObjetos.activables().get(objeto).actuar() })
         }
     }
 
@@ -126,7 +139,7 @@ class Palanca inherits Objeto(nombre = "palanca", image = "PalancaCerrada.png") 
                 modo = 1
                 self.image("PalancaCerrada.png")
             })
-            listaObjetos.forEach({ objeto => mapaObjetos.activables().get(objeto).cerrar() })
+            listaObjetos.forEach({ objeto => mapaObjetos.activables().get(objeto).actuar() })
         }
     }
 }
@@ -150,7 +163,7 @@ class Moneda inherits Objeto(nombre = "coin") {
         contadorMonedas.actualizar()
 
         const moneda = game.sound("agarrarMoneda.mp3")
-        moneda.volume(0.3)
+        moneda.volume(0.4)
         moneda.play()
 
         mapaObjetos.monedas().remove(self)
@@ -226,25 +239,38 @@ class Puerta inherits Objeto(nombre = "Puerta", image = "PuertaHorizontal_1.png"
             }
     }
 
+    method actuar() {
+        if (modo == 1) {
+            if (puedeCerrar) {
+                self.abrir()
+            }
+        }
+        if (modo == 0) {
+            if (puedeCerrar) {
+                puedeCerrar = false
+                self.cerrar()
+            }
+        }
+    }
+
     method abrir() {
-        self.cambiarNombre()
         if (modo == 1 && puedeCerrar) {
+            mapaObjetos.paredes().remove(collision)
             puedeCerrar = false
-            
+            self.cambiarNombre()
             self.animar(9, 100, {
                 modo = 0
                 self.image("" + nombre + "_8.png")
-                mapaObjetos.paredes().remove(collision)
+                puedeCerrar = true 
             })
         }
     }
 
     method cerrar() {
-        self.cambiarNombre()
         if (modo == 0 && !puedeCerrar) {
-            puedeCerrar = true
+            puedeCerrar = true 
             mapaObjetos.enemigosEn(self.collisionDir().x(), self.collisionDir().y()).forEach({ e => e.matar() })
-            
+            self.cambiarNombre()
             self.animarReverse(9, 100, {
                 modo = 1
                 self.image("" + nombre + "_1.png")
@@ -262,6 +288,11 @@ class Bloque inherits Enemigo {
         self.actualizarRumbo(dirActual)
 
         if (self.puedeMoverseA(dirActual)) {
+
+            const caja = game.sound("Empujar.mp3")
+            caja.volume(0.4)
+            caja.play()
+
             mapaObjetos.paredes().remove(collision)
             self.inicializarAnimacion()
             animadorGlobal.enemigosMoviendose().add(self)

@@ -73,6 +73,11 @@ object personaje {
     }
   }
 
+  method actualizar() {
+    game.removeVisual(self)
+    game.addVisual(self)
+  }
+
   method atacar(dir) {
     const deltas = self.deltasDe(dir)
     posOrigenX = myPosition.x()
