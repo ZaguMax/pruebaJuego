@@ -41,10 +41,16 @@ object gestorDeEnemigos
     }
 
     method estaOcupadaOReservada(posicionDestino) {
-        return enemigosActivos.any({ enemigo => 
-            enemigo.position() == posicionDestino or enemigo.destinoTemporal() == posicionDestino
-        })
-    }
+    const enemigoBloqueando = enemigosActivos.any({ enemigo => 
+        enemigo.position() == posicionDestino or enemigo.destinoTemporal() == posicionDestino
+    })
+
+    const cajaBloqueando = mapaObjetos.cajas().any({ caja =>
+        caja.position() == posicionDestino or caja.destinoTemporal() == posicionDestino
+    })
+
+    return enemigoBloqueando or cajaBloqueando
+}
 }
 
 
@@ -81,7 +87,7 @@ class Enemigo
     }
 
     method name() = ""
-
+    
     method image() = if (imagenActual == "") self.name() + "_" + dirActual + ".png" else imagenActual
     method image(nuevaImagen) { imagenActual = nuevaImagen }
 
@@ -103,15 +109,15 @@ class Enemigo
     }
 
     method puedeMoverseA(dir)
-{
-    const deltas = self.deltaDir(dir)
-    const nx = position.x() + deltas.get(0)
-    const ny = position.y() + deltas.get(1)
-    const posicionObjetivo = game.at(nx, ny)
-    const sinPared = !mapaObjetos.hayEn(nx, ny, mapaObjetos.paredes())
-    const sinEnemigos = !gestorDeEnemigos.estaOcupadaOReservada(posicionObjetivo)
-    return sinPared and sinEnemigos
-}
+    {
+        const deltas = self.deltaDir(dir)
+        const nx = position.x() + deltas.get(0)
+        const ny = position.y() + deltas.get(1)
+        const posicionObjetivo = game.at(nx, ny)
+        const sinPared = !mapaObjetos.hayEn(nx, ny, mapaObjetos.paredes())
+        const sinEnemigos = !gestorDeEnemigos.estaOcupadaOReservada(posicionObjetivo)
+        return sinPared and sinEnemigos
+    }
 
     method inicializarAnimacion()
     {
@@ -129,40 +135,36 @@ class Enemigo
 
     method mover()
     {
-        if (!estaVivo) return null
-        if (self.esperando()) return null
-        if(animadorGlobal.enemigosMoviendose().contains(self)) return null
-
-        const dx = personaje.position().x() - position.x()
-        const dy = personaje.position().y() - position.y()
-        const dirX = if (dx > 0) "der" else "izq"
-        const dirY = if (dy > 0) "arr" else "abj"
-
-        const numeroAleatorio = (1..2).anyOne()
-
-        if (numeroAleatorio == 1)
+        if (estaVivo and not self.esperando() and not animadorGlobal.enemigosMoviendose().contains(self)) 
         {
-            if (self.puedeMoverseA(dirX)) self.actualizarRumbo(dirX)
-            else if (self.puedeMoverseA(dirY)) self.actualizarRumbo(dirY)
-        }
-        else
-        {
-            if (self.puedeMoverseA(dirY)) self.actualizarRumbo(dirY)
-            else if (self.puedeMoverseA(dirX)) self.actualizarRumbo(dirX)
-        }
+            const dx = personaje.position().x() - position.x()
+            const dy = personaje.position().y() - position.y()
+            const dirX = if (dx > 0) "der" else "izq"
+            const dirY = if (dy > 0) "arr" else "abj"
 
-    
-        if (self.puedeMoverseA(dirActual))
-        {
-            self.inicializarAnimacion()
-            animadorGlobal.enemigosMoviendose().add(self)
-        }
-        else {
-            self.esperando(true)
-            game.schedule(1500, { self.esperando(false) })
-        }
+            const numeroAleatorio = (1..2).anyOne()
 
-        return null
+            if (numeroAleatorio == 1)
+            {
+                if (self.puedeMoverseA(dirX)) self.actualizarRumbo(dirX)
+                else if (self.puedeMoverseA(dirY)) self.actualizarRumbo(dirY)
+            }
+            else
+            {
+                if (self.puedeMoverseA(dirY)) self.actualizarRumbo(dirY)
+                else if (self.puedeMoverseA(dirX)) self.actualizarRumbo(dirX)
+            }
+
+            if (self.puedeMoverseA(dirActual))
+            {
+                self.inicializarAnimacion()
+                animadorGlobal.enemigosMoviendose().add(self)
+            }
+            else {
+                self.esperando(true)
+                game.schedule(1500, { self.esperando(false) })
+            }
+        }
     }
 
     method matar()
@@ -192,6 +194,8 @@ class Enemigo
         game.removeVisual(tileB)
         game.addVisual(tileB)
     }
+
+    method alTerminarMovimiento() {}
 }
 
 
@@ -205,26 +209,21 @@ class Mur inherits Enemigo {
     override method name() = "mur"
 
     override method mover() {
+        if (estaVivo and not self.esperando() and not animadorGlobal.enemigosMoviendose().contains(self)) 
+        {
+            if (!self.puedeMoverseA(dirActual)) {
+                const nuevoRumbo = if (dirActual == "abj") "arr" else "abj"
+                self.actualizarRumbo(nuevoRumbo)
+            }
 
-        
-        if (!estaVivo) return null
-        if (self.esperando()) return null
-        if (animadorGlobal.enemigosMoviendose().contains(self)) return null
-        
-        if (!self.puedeMoverseA(dirActual)) {
-            const nuevoRumbo = if (dirActual == "abj") "arr" else "abj"
-            self.actualizarRumbo(nuevoRumbo)
+            if (self.puedeMoverseA(dirActual)) {
+                self.inicializarAnimacion()
+                animadorGlobal.enemigosMoviendose().add(self)
+            } 
+            else {
+                self.esperando(true)
+                game.schedule(1500, { self.esperando(false) })
+            }
         }
-
-        if (self.puedeMoverseA(dirActual)) {
-            self.inicializarAnimacion()
-            animadorGlobal.enemigosMoviendose().add(self)
-        } 
-        else {
-            self.esperando(true)
-            game.schedule(1500, { self.esperando(false) })
-        }
-
-        return null
     }
 }

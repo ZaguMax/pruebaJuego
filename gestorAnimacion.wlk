@@ -16,7 +16,7 @@ object bancoDeImagenes
     const biblioteca = new Dictionary()
 
     method inicializar() {
-        const enemigos = ["sapo", "mur"]
+        const enemigos = ["sapo", "mur", "caja"]
         const direcciones = ["arr", "abj", "der", "izq"]
 
         enemigos.forEach({ ene =>
@@ -101,6 +101,7 @@ object animadorGlobal
                     enemigo.image("")
                     enemigo.frameActual(0)
                     enemigo.destinoTemporal(null)
+                    enemigo.alTerminarMovimiento()
                 }
             }
         })

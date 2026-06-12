@@ -101,6 +101,7 @@ object gestorNiveles
             })
         })
         gestorDeEnemigos.enemigosActivos().forEach({e => e.actualizar()})
+        mapaObjetos.cajas().forEach({c => c.actualizar()})
     }
 
     method procesarCelda(celda, x, y) {
@@ -110,8 +111,17 @@ object gestorNiveles
         if (celda == 4)     { self.crearPincho(x, y) }
         if (celda == 5)     { self.crearMurcielago(x, y)}
         if (celda == 6)     { self.crearPuerta(x, y, "Horizontal") }
-        if (celda == 7)     { self.crearPuerta(x, y, "Vertical") }        
+        if (celda == 7)     { self.crearPuerta(x, y, "Vertical") }  
+        if (celda == 8)     { self.crearCaja(x,y)} 
         if (celda == 67)    { self.crearSpawnPersonaje(x, y) }
+    }
+
+    method crearCaja(x,y) {
+        const collision = new Collision(position = game.at(x, y))
+        const caja = new Bloque(position = game.at(x,y), collision = collision)
+        caja.prepararVisuales()
+        mapaObjetos.cajas().add(caja)
+        game.addVisual(caja)
     }
 
     method crearPared(x, y) {
@@ -264,7 +274,7 @@ object nivel_1 inherits Nivel
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
         [1, 0, 0, 0, 0, 0, 0, 0, 4, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 0, 67, 0, 0, 0, 6, 0, 4, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1],
+        [1, 0, 67, 8, 0, 0, 6, 0, 4, 2, 0, 0, 0, 0, 0, 0, 2, 0, 0, 1],
         [1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 2, 1, 2, 0, 1],
         [1, 0, 0, 2, 0, 7, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 1],
         [1, 0, 2, 1, 2, 0, 0, 1, 1, 1, 1, 1, 1, 0, 5, 0, 0, 0, 0, 1],

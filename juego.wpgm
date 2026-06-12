@@ -24,6 +24,7 @@ program rpg
 
 object mapaObjetos
 {
+    var property cajas = [] 
     var property paredes = []
     var property monedas = []
     var property interactuables = []
@@ -46,5 +47,6 @@ object mapaObjetos
         activables.clear()
         interactuables.clear()
         pisables.clear()
+        cajas.clear() 
     }
 }

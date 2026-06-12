@@ -149,6 +149,10 @@ class Moneda inherits Objeto(nombre = "coin") {
         personaje.monedas(personaje.monedas() + 1)
         contadorMonedas.actualizar()
 
+        const moneda = game.sound("agarrarMoneda.mp3")
+        moneda.volume(0.3)
+        moneda.play()
+
         mapaObjetos.monedas().remove(self)
         animadorGlobal.sacar(self)
         game.removeVisual(self) 
@@ -248,4 +252,24 @@ class Puerta inherits Objeto(nombre = "Puerta", image = "PuertaHorizontal_1.png"
             })
         }
     }
+}
+
+class Bloque inherits Enemigo {
+    const collision
+    override method name() = "caja"
+
+    override method mover() {
+        self.actualizarRumbo(dirActual)
+
+        if (self.puedeMoverseA(dirActual)) {
+            mapaObjetos.paredes().remove(collision)
+            self.inicializarAnimacion()
+            animadorGlobal.enemigosMoviendose().add(self)
+        }
+    }
+
+    override method alTerminarMovimiento() {
+    collision.position(self.position())
+    mapaObjetos.paredes().add(collision)
+}
 }

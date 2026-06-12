@@ -156,55 +156,87 @@ object personaje {
   }
 
   method iniciarMovimiento(dir) {
+    if (!moviendose && !atacando) {
+        
+        var velocidadMovimiento = 30
+        const deltas = self.deltasDe(dir)
+        const xSiguiente = myPosition.x() + deltas.get(0)
+        const ySiguiente = myPosition.y() + deltas.get(1)
+        var cajaPudoMoverse = true
 
-    
+        const hayCAjaMoviendoseAdelante = animadorGlobal.enemigosMoviendose()
+            .filter({e => mapaObjetos.cajas().contains(e)})
+            .any({caja => 
+                caja.position() == game.at(xSiguiente, ySiguiente) || 
+                caja.destinoTemporal() == game.at(xSiguiente, ySiguiente)
+            })
 
-    const deltas = self.deltasDe(dir)
-    if (self.puedeMover(dir)) {
-      moviendose = true
-      frameActual = 0
-      dirActual = dir
-      posOrigenX = myPosition.x()
-      posOrigenY = myPosition.y()
-      posDestinoX = posOrigenX + deltas.get(0)
-      posDestinoY = posOrigenY + deltas.get(1)
+        if (!hayCAjaMoviendoseAdelante) {
+            if (mapaObjetos.cajas().any({caja => caja.position() == game.at(xSiguiente, ySiguiente) && caja.destinoTemporal() == null})) {
+                const objetoAdelante = mapaObjetos.cajas().find({caja => caja.position() == game.at(xSiguiente, ySiguiente)})
+                
+                if (objetoAdelante.puedeMoverseA(dir)) {
+                    velocidadMovimiento = 50
+                    objetoAdelante.dirActual(dir)
+                    objetoAdelante.mover()
+                    cajaPudoMoverse = true
+                } else {
+                    cajaPudoMoverse = false 
+                }
+            }
 
-      tileA = new TileTransicion(position = game.at(posOrigenX, posOrigenY), image = "pj_" + dir + "_a_1.png")
-      tileB = new TileTransicion(position = game.at(posDestinoX, posDestinoY), image = "pj_" + dir + "_b_1.png")
-      game.addVisual(tileA)
-      game.addVisual(tileB)
-      image = "transparente.png"
+            if (cajaPudoMoverse && self.puedeMover(dir)) {
+                moviendose = true
+                frameActual = 0
+                dirActual = dir
+                posOrigenX = myPosition.x()
+                posOrigenY = myPosition.y()
+                posDestinoX = posOrigenX + deltas.get(0)
+                posDestinoY = posOrigenY + deltas.get(1)
 
-      game.onTick(30, "movimiento", {
-        frameActual = frameActual + 1
-        if (frameActual <= 21) {
-          tileA.image("pj_" + dirActual + "_a_" + frameActual + ".png")
-          tileB.image("pj_" + dirActual + "_b_" + frameActual + ".png")
-        } 
-        else {
-          if (mapaObjetos.hayEn(posDestinoX, posDestinoY, mapaObjetos.monedas())) {
-            mapaObjetos.monedas().find({ m => m.position().x() == posDestinoX && m.position().y() == posDestinoY }).agarrar()
-          }
-          if (mapaObjetos.hayEn(posDestinoX, posDestinoY, mapaObjetos.pisables())) {
-            mapaObjetos.pisables().find({ m => m.position().x() == posDestinoX && m.position().y() == posDestinoY }).pisar()
-          }
-          game.removeVisual(tileA)
-          game.removeVisual(tileB)
-          tileA = null
-          tileB = null
-          myPosition = game.at(posDestinoX, posDestinoY)
-          tpeado = false
-          
-          image = "pj_" + dirActual + ".png"
-          game.removeTickEvent("movimiento")
-          moviendose = false
+                tileA = new TileTransicion(position = game.at(posOrigenX, posOrigenY), image = "pj_" + dir + "_a_1.png")
+                tileB = new TileTransicion(position = game.at(posDestinoX, posDestinoY), image = "pj_" + dir + "_b_1.png")
+                game.addVisual(tileA)
+                game.addVisual(tileB)
+                image = "transparente.png"
+
+                game.onTick(velocidadMovimiento, "movimiento", {
+                    frameActual = frameActual + 1
+                    if (frameActual <= 21) {
+                        tileA.image("pj_" + dirActual + "_a_" + frameActual + ".png")
+                        tileB.image("pj_" + dirActual + "_b_" + frameActual + ".png")
+                    } 
+                    else {
+                        if (mapaObjetos.hayEn(posDestinoX, posDestinoY, mapaObjetos.monedas())) {
+                            mapaObjetos.monedas().find({ m => m.position().x() == posDestinoX && m.position().y() == posDestinoY }).agarrar()
+                        }
+                        if (mapaObjetos.hayEn(posDestinoX, posDestinoY, mapaObjetos.pisables())) {
+                            mapaObjetos.pisables().find({ m => m.position().x() == posDestinoX && m.position().y() == posDestinoY }).pisar()
+                        }
+                        game.removeVisual(tileA)
+                        game.removeVisual(tileB)
+                        tileA = null
+                        tileB = null
+                        myPosition = game.at(posDestinoX, posDestinoY)
+                        tpeado = false
+                        
+                        image = "pj_" + dirActual + ".png"
+                        game.removeTickEvent("movimiento")
+                        moviendose = false
+                    }
+                })
+            } 
+            else {
+                dirActual = dir
+                image = "pj_" + dirActual + ".png"
+            }
         }
-      })
-    } else if (!atacando && !moviendose) {
-      dirActual = dir
-      image = "pj_" + dirActual + ".png"
-    }
-  }
+        else {
+            dirActual = dir
+            image = "pj_" + dirActual + ".png"
+        }
+    } 
+}
 
   method teletransportar(x, y) {
     const destino = new TileTransicion(position = game.at(x,y), image = "teleportPj_"+ dirActual + "_b_1.png")
