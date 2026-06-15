@@ -16,7 +16,7 @@ object bancoDeImagenes
     const biblioteca = new Dictionary()
 
     method inicializar() {
-        const enemigos = ["sapo", "mur", "caja"]
+        const enemigos = ["sapo", "mur", "caja", "gato"]
         const direcciones = ["arr", "abj", "der", "izq"]
 
         enemigos.forEach({ ene =>

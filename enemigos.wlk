@@ -227,3 +227,27 @@ class Mur inherits Enemigo {
         }
     }
 }
+
+class Gato inherits Enemigo {
+
+    override method name() = "gato"
+
+    override method mover() {
+        if (estaVivo and not self.esperando() and not animadorGlobal.enemigosMoviendose().contains(self)) 
+        {
+            if (!self.puedeMoverseA(dirActual)) {
+                const nuevoRumbo = if (dirActual == "izq") "der" else "izq"
+                self.actualizarRumbo(nuevoRumbo)
+            }
+
+            if (self.puedeMoverseA(dirActual)) {
+                self.inicializarAnimacion()
+                animadorGlobal.enemigosMoviendose().add(self)
+            } 
+            else {
+                self.esperando(true)
+                game.schedule(1500, { self.esperando(false) })
+            }
+        }
+    }
+}

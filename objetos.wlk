@@ -41,15 +41,19 @@ class Objeto {
     }
 
     method animarLoop(totalFrames, ms) {
-    frameActual = 0
-    game.onTick(ms, "anim_loop_" + self.identity().toString(), {
-        frameActual += 1
-        if (frameActual > totalFrames) {
-            frameActual = 1 
-        }
-        self.actualizarImagen()
-    })
+        frameActual = 0
+        game.onTick(ms, "anim_loop_" + self.identity().toString(), {
+            frameActual += 1
+            if (frameActual > totalFrames) {
+                frameActual = 1 
+            }
+            self.actualizarImagen()
+        })
+    }
 }
+
+class ObjetoAccionable inherits Objeto{
+
 }
 
 class Collision inherits Objeto {}
@@ -72,16 +76,7 @@ class Pinchos inherits Objeto(nombre = "PinchosAbriendo", image = "PinchosCerrad
     const collision = new Collision(position = position)
 
     method actuar() {
-        if (modo == 1) {
-            if (puedeCerrar) {
-                self.abrir()
-            }
-        }
-        if (modo == 0) {
-            if (!puedeCerrar) {
-                self.cerrar()
-            }
-        }
+        if (modo == 1) self.abrir() else self.cerrar()
     }
 
     method abrir() {
@@ -213,6 +208,8 @@ class Portal inherits Objeto(nombre = "portal", image = "portal_1.png") {
             personaje.teletransportar(dirDestino.get(0), dirDestino.get(1))
         }
     }
+
+    method soltar() {}
 }
 
 class Puerta inherits Objeto(nombre = "Puerta", image = "PuertaHorizontal_1.png"){
@@ -293,6 +290,10 @@ class Bloque inherits Enemigo {
             caja.volume(0.4)
             caja.play()
 
+            if (mapaObjetos.hayEn(position.x(), position.y(), mapaObjetos.pisables())) {
+                mapaObjetos.pisables().find({ b => b.position() == position }).soltar()
+            }
+
             mapaObjetos.paredes().remove(collision)
             self.inicializarAnimacion()
             animadorGlobal.enemigosMoviendose().add(self)
@@ -300,7 +301,47 @@ class Bloque inherits Enemigo {
     }
 
     override method alTerminarMovimiento() {
-    collision.position(self.position())
-    mapaObjetos.paredes().add(collision)
+        collision.position(self.position())
+        mapaObjetos.paredes().add(collision)
+
+        if (mapaObjetos.hayEn(position.x(), position.y(), mapaObjetos.pisables())) {
+            mapaObjetos.pisables().find({ b => b.position() == position }).pisar()
+        }
+    }
 }
+
+class Button inherits Objeto(nombre = "boton", image = "boton_1.png") {
+    method puedeInteractuar() = mapaObjetos.cajas() + [personaje]
+    var property listaObjetos 
+    var property modo = 1
+    var property puedeCerrar = true
+    
+    method pisar() {
+        if (modo == 1 && puedeCerrar) {
+            puedeCerrar = false
+            
+            self.animar(8, 100, {
+                modo = 0
+                self.image("boton_7.png")
+                if(!self.puedeInteractuar().any({e => e.position() == position})){
+                    self.soltar()
+                }
+                })
+            listaObjetos.forEach({ objeto => mapaObjetos.activables().get(objeto).actuar() })
+        }
+    }
+
+    method soltar() {
+        if (modo == 0 && !puedeCerrar) {
+            puedeCerrar = true
+            
+            self.animarReverse(8, 100, {
+                modo = 1
+                self.image("boton_1.png")
+            })
+            listaObjetos.forEach({ objeto => mapaObjetos.activables().get(objeto).actuar() })
+        }
+    }
+
+    method animar() {}
 }

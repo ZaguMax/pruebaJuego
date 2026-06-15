@@ -135,7 +135,16 @@ object gestorNiveles
         if (celda == 9)     { self.crearPuerta(x, y, "Vertical", "Abierto") }  
         if (celda == 10)    { self.crearPuerta(x, y, "Vertical", "Cerrado") }  
         if (celda == 11)    { self.crearCaja(x,y)} 
+        if (celda == 12)    { self.crearGato(x,y)}
         if (celda == 67)    { self.crearSpawnPersonaje(x, y) }
+    }
+
+    method crearGato(x,y) {
+        const gato = new Gato(position = game.at(x,y))
+        gato.prepararVisuales()
+        game.addVisual(gato)
+        gestorDeEnemigos.añadir(gato)
+        gato.actualizarRumbo("der")
     }
 
     method crearCaja(x,y) {
@@ -293,10 +302,11 @@ class Nivel
     method musicasFondo() = ["fondo1.mp3", "fondo2.mp3"]
 
     method interactuables() = [self.palancas()]
-    method pisables() = [self.teletransportes()] 
+    method pisables() = [self.teletransportes(), self.botones()] 
 
     method palancas() = []
     method teletransportes() = []
+    method botones() = []
 
     method musicaNivel() = self.musicasFondo().get( (0..self.musicasFondo().size()-1).anyOne() )
 }
@@ -308,6 +318,8 @@ object nivel_1 inherits Nivel
                                     new Palanca(position = game.at(6,7), listaObjetos = [1]),
                                     new Palanca(position = game.at(17,2), listaObjetos = [])]
 
+    override method botones() =     [new Button(position = game.at(3,5), listaObjetos = [0])]
+
     override method teletransportes() =[new Portal(position = game.at(10,1), dirDestino = [17,6]),
                                         new Portal(position = game.at(17,6), dirDestino = [10,1])]
 
@@ -316,7 +328,7 @@ object nivel_1 inherits Nivel
         [0 , 0 , 0 , 0 , 0 , 1 , 1 , 1 , 0 , 0 , 0 , 0 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 ],
         [0 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 0 , 1 , 1 , 0 , 0 , 0 , 0 , 1 , 1 ],
         [1 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 1 ],
-        [1 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 1 ],
+        [1 , 0 , 11 , 12 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 1 ],
         [1 , 67, 0 , 0 , 0 , 0 , 0 , 0 , 1 , 1 , 0 , 0 , 1 , 1 , 1 , 4 , 1 , 1 , 1 , 1 ],
         [1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 0 , 1 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 1 , 1 ],
         [1 , 1 , 0 , 0 , 11, 4 , 0 , 0 , 3 , 0 , 1 , 1 , 0 , 0 , 1 , 0 , 6 , 1 , 0 , 1 ],
