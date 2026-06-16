@@ -217,6 +217,13 @@ object personaje {
                         if (mapaObjetos.hayEn(posDestinoX, posDestinoY, mapaObjetos.pisables())) {
                             mapaObjetos.pisables().find({ m => m.position() == game.at(posDestinoX, posDestinoY) }).pisar()
                         }
+
+                        if(mapaObjetos.activables()
+                        .filter({ e => e.nombre() == "laser" })
+                        .any({ e => e.estaEnLaser(game.at(posDestinoX, posDestinoY)) })){
+                            //Aquí el personaje debe morir
+                        }
+
                         game.removeVisual(tileA)
                         game.removeVisual(tileB)
                         tileA = null

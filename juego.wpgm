@@ -30,6 +30,7 @@ object mapaObjetos
     var property interactuables = []
     var property pisables = []
     var property activables = []
+    
     var property enemigosActivos = gestorDeEnemigos.enemigosActivos() 
 
     method hayEn(x, y, lista) {

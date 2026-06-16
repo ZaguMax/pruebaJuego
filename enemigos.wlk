@@ -195,8 +195,15 @@ class Enemigo
         game.addVisual(tileB)
     }
 
-    method alTerminarMovimiento() {}
+    method alTerminarMovimiento() {
+    if (mapaObjetos.activables()
+        .filter({ e => e.nombre() == "laser" })
+        .any({ e => e.estaEnLaser(position) })) {
+        self.matar()
+    }
 }
+}
+
 
 
 class Sapo inherits Enemigo

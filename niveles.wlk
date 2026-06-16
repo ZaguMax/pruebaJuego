@@ -120,6 +120,7 @@ object gestorNiveles
         }
         
         gestorDeEnemigos.enemigosActivos().forEach({e => e.actualizar()})
+        mapaObjetos.activables().filter({ e => e.nombre() == "laser" }).forEach({ e => e.iniciarLaser() })
         mapaObjetos.cajas().forEach({c => c.actualizar()})
     }
 
@@ -136,7 +137,25 @@ object gestorNiveles
         if (celda == 10)    { self.crearPuerta(x, y, "Vertical", "Cerrado") }  
         if (celda == 11)    { self.crearCaja(x,y)} 
         if (celda == 12)    { self.crearGato(x,y)}
+        if (celda == 13)    { self.crearLaser(x, y, "izq", "Abierto")}
+        if (celda == 14)    { self.crearLaser(x, y, "der", "Abierto")}
+        if (celda == 15)    { self.crearLaser(x, y, "arr", "Abierto")}
+        if (celda == 16)    { self.crearLaser(x, y, "abj", "Abierto")}
+        if (celda == 17)    { self.crearLaser(x, y, "izq", "Cerrado")}
+        if (celda == 18)    { self.crearLaser(x, y, "der", "Cerrado")}
+        if (celda == 19)    { self.crearLaser(x, y, "arr", "Cerrado")}
+        if (celda == 20)    { self.crearLaser(x, y, "abj", "Cerrado")}
         if (celda == 67)    { self.crearSpawnPersonaje(x, y) }
+    }
+
+    method crearLaser(x, y, dir, estado) {
+        const laser = new Laser(position = game.at(x, y), direccion = dir)
+        game.addVisual(laser)
+        if (estado == "Cerrado"){
+            laser.abrir()
+        }
+        self.crearPared(x, y)
+        mapaObjetos.activables().add(laser)
     }
 
     method crearGato(x,y) {
@@ -327,8 +346,8 @@ object nivel_1 inherits Nivel
         [0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ],
         [0 , 0 , 0 , 0 , 0 , 1 , 1 , 1 , 0 , 0 , 0 , 0 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 ],
         [0 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 0 , 1 , 1 , 0 , 0 , 0 , 0 , 1 , 1 ],
-        [1 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 1 ],
-        [1 , 0 , 11 , 12 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 1 ],
+        [1 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 13, 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 1 ],
+        [1 , 0 , 11, 12, 0 , 0 , 0 , 0 , 13, 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 1 ],
         [1 , 67, 0 , 0 , 0 , 0 , 0 , 0 , 1 , 1 , 0 , 0 , 1 , 1 , 1 , 4 , 1 , 1 , 1 , 1 ],
         [1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 0 , 1 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 1 , 1 ],
         [1 , 1 , 0 , 0 , 11, 4 , 0 , 0 , 3 , 0 , 1 , 1 , 0 , 0 , 1 , 0 , 6 , 1 , 0 , 1 ],

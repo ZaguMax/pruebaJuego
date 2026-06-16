@@ -278,7 +278,7 @@ class Puerta inherits Objeto(nombre = "Puerta", image = "PuertaHorizontal_1.png"
 }
 
 class Bloque inherits Enemigo {
-    const collision
+    const property collision
     override method name() = "caja"
 
     override method mover() {
@@ -307,6 +307,8 @@ class Bloque inherits Enemigo {
         if (mapaObjetos.hayEn(position.x(), position.y(), mapaObjetos.pisables())) {
             mapaObjetos.pisables().find({ b => b.position() == position }).pisar()
         }
+
+        mapaObjetos.activables().filter({e => e.nombre() == "laser"}).forEach({e=> e.actualizar()})
     }
 }
 
@@ -344,4 +346,103 @@ class Button inherits Objeto(nombre = "boton", image = "boton_1.png") {
     }
 
     method animar() {}
+}
+
+class Laser inherits Objeto(nombre = "laser", image = "laserOn.png") {
+    const visualLaser = new TileTransicion(position = game.at(0,0), image = "transparente.png")
+    var largoLaser = 0
+    var property modo = 1
+    var property puedeCerrar = true
+    var property direccion
+    var objetosEnRuta = []
+    var casillasLaser = []
+
+    method iniciarLaser() {
+        game.addVisual(visualLaser)
+        game.schedule(1, {
+            const delta = personaje.deltasDe(direccion)
+            const paredesEnRuta = mapaObjetos.paredes()
+                .filter({ p =>
+                    (delta.get(0) != 0 && p.position().y() == position.y()) ||
+                    (delta.get(1) != 0 && p.position().x() == position.x())
+                })
+            objetosEnRuta = paredesEnRuta + mapaObjetos.cajas().map({ c => c.collision() })
+            self.cerrar()
+        })
+    }
+
+    method contarCasillasLibres() {
+        var largo = 0
+        const delta = personaje.deltasDe(direccion)
+        var checkX = position.x() + delta.get(0)
+        var checkY = position.y() + delta.get(1)
+        var sigo = true
+
+        (1..19).forEach { _ =>
+            if (sigo) {
+                if (mapaObjetos.hayEn(checkX, checkY, objetosEnRuta)) {
+                    sigo = false
+                } else {
+                    largo += 1
+                    checkX += delta.get(0)
+                    checkY += delta.get(1)
+                }
+            }
+        }
+        return largo
+    }
+
+    method actuar() {
+        if (modo == 1) {
+            modo = 0
+            self.abrir()
+        } else {
+            modo = 1
+            self.cerrar()
+        }
+    }
+
+    method actualizar() {
+        if (modo == 1) {
+            self.cerrar()
+        }
+    }
+
+    method abrir() {
+        casillasLaser = []
+        image = "laserOff_" + direccion + ".png"
+        visualLaser.image("transparente.png")
+    }
+
+    method cerrar() {
+    image = "laserOn_" + direccion + ".png"
+    var dirLaser = "vertical"
+    if (direccion == "der" || direccion == "izq") { dirLaser = "horizontal" }
+
+    largoLaser = self.contarCasillasLibres()
+
+    if (largoLaser == 0) {
+        visualLaser.image("transparente.png")
+        casillasLaser = []
+    } else {
+        const delta = personaje.deltasDe(direccion)
+        casillasLaser = (1..largoLaser).map({ i =>
+            game.at(position.x() + delta.get(0) * i, position.y() + delta.get(1) * i)
+        })
+
+        var destinoX = position.x() + delta.get(0) * largoLaser
+        var destinoY = position.y() + delta.get(1) * largoLaser
+        if (direccion == "der" || direccion == "arr") {
+            destinoX = position.x() + delta.get(0)
+            destinoY = position.y() + delta.get(1)
+        }
+
+        visualLaser.position(game.at(destinoX, destinoY))
+        visualLaser.image("laserLargo_" + dirLaser + "_" + largoLaser + ".png")
+    }
+}
+
+    method estaEnLaser(pos) {
+        return casillasLaser.any({ c => c.x() == pos.x() && c.y() == pos.y() })
+    }
 }
