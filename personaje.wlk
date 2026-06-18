@@ -221,7 +221,7 @@ object personaje {
                         if(mapaObjetos.activables()
                         .filter({ e => e.nombre() == "laser" })
                         .any({ e => e.estaEnLaser(game.at(posDestinoX, posDestinoY)) })){
-                            //Aquí el personaje debe morir
+                        //
                         }
 
                         game.removeVisual(tileA)

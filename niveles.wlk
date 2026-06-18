@@ -145,7 +145,16 @@ object gestorNiveles
         if (celda == 18)    { self.crearLaser(x, y, "der", "Cerrado")}
         if (celda == 19)    { self.crearLaser(x, y, "arr", "Cerrado")}
         if (celda == 20)    { self.crearLaser(x, y, "abj", "Cerrado")}
+        if (celda == 21)    { self.crearSalida(x, y, "izq")}
+        if (celda == 22)    { self.crearSalida(x, y, "der")}
         if (celda == 67)    { self.crearSpawnPersonaje(x, y) }
+    }
+
+    method crearSalida(x, y, dir) {
+        const salida = new Salida(position = game.at(x, y), direccion = dir)
+        game.addVisual(salida)
+        mapaObjetos.pisables().add(salida)
+        salida.actualizarDireccion()
     }
 
     method crearLaser(x, y, dir, estado) {
@@ -264,7 +273,7 @@ object transition {
         {
             frameActual = frameActual + 1
 
-            if (frameActual < 26) {
+            if (frameActual < 29) {
                 self.image("transition_" + frameActual + ".png")
             } 
             else {
@@ -294,6 +303,7 @@ object transition {
                 game.removeTickEvent("transition")
                 game.removeVisual(self)
                 personaje.moviendose(false)
+                personaje.movimiento(true)
             }
         })
     }
@@ -308,16 +318,17 @@ class Nivel
 {
     var property background = new Fondo(image = self.toString() + ".png")
     method mapaData() = [
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+        [0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ],
+        [0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ],
+        [0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ],
+        [0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ],
+        [0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ],
+        [0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ],
+        [0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ],
+        [0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ],
+        [0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ],
+        [0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ]]
     method musicasFondo() = ["fondo1.mp3", "fondo2.mp3"]
 
     method interactuables() = [self.palancas()]
@@ -333,26 +344,25 @@ class Nivel
 object nivel_1 inherits Nivel
 {
     override method musicasFondo() = ["fondo1.mp3","fondo2.mp3","fondo3.mp3"]
-    override method palancas()  =  [new Palanca(position = game.at(1,2), listaObjetos = [0]),
-                                    new Palanca(position = game.at(6,7), listaObjetos = [1]),
-                                    new Palanca(position = game.at(17,2), listaObjetos = [])]
 
-    override method botones() =     [new Button(position = game.at(3,5), listaObjetos = [0])]
+    override method botones() =    [new Button(position = game.at(12,1), listaObjetos = [3]),
+                                    new Button(position = game.at(8,1), listaObjetos = [4])]
 
-    override method teletransportes() =[new Portal(position = game.at(10,1), dirDestino = [17,6]),
-                                        new Portal(position = game.at(17,6), dirDestino = [10,1])]
+    override method teletransportes() =[new Portal(position = game.at(13,7), dirDestino = [18,8]),
+                                        new Portal(position = game.at(18,8), dirDestino = [13,7])]
 
     override method mapaData() = [
-        [0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ],
-        [0 , 0 , 0 , 0 , 0 , 1 , 1 , 1 , 0 , 0 , 0 , 0 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 ],
-        [0 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 0 , 1 , 1 , 0 , 0 , 0 , 0 , 1 , 1 ],
-        [1 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 13, 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 1 ],
-        [1 , 0 , 11, 12, 0 , 0 , 0 , 0 , 13, 0 , 0 , 0 , 1 , 0 , 0 , 0 , 0 , 0 , 0 , 1 ],
-        [1 , 67, 0 , 0 , 0 , 0 , 0 , 0 , 1 , 1 , 0 , 0 , 1 , 1 , 1 , 4 , 1 , 1 , 1 , 1 ],
-        [1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 0 , 1 , 1 , 0 , 0 , 0 , 1 , 0 , 0 , 0 , 1 , 1 ],
-        [1 , 1 , 0 , 0 , 11, 4 , 0 , 0 , 3 , 0 , 1 , 1 , 0 , 0 , 1 , 0 , 6 , 1 , 0 , 1 ],
-        [1 , 0 , 0 , 11, 0 , 1 , 0 , 0 , 0 , 0 , 0 , 1 , 0 , 0 , 1 , 0 , 0 , 1 , 0 , 1 ],
-        [1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 1 , 1 , 1 , 1 , 1 ]]
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+        [1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,16,1 ,1 ,0 ,0 ,0 ,1 ,1 ,1 ,0 ],
+        [1 ,0 ,0 ,3 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,1 ,1 ,1 ,0 ,0 ,1 ,0 ,1 ,0 ],
+        [1 ,0 ,2 ,0 ,0 ,2 ,11,0 ,2 ,0 ,0 ,2 ,0 ,0 ,1 ,0 ,0 ,1 ,0 ,1 ,0 ],
+        [1 ,0 ,0 ,11,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,13,1 ,0 ,0 ,1 ,2 ,1 ,0 ],
+        [1 ,67,0 ,0 ,0 ,0 ,0 ,0 ,11,1 ,15,1 ,1 ,1 ,0 ,0 ,0 ,1 ,6 ,1 ,0 ],
+        [1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,8 ,1 ,0 ,0 ,0 ,0 ,0 ,1 ,1 ,1 ,2 ,1 ,0 ],
+        [1 ,0 ,0 ,10,0 ,0 ,12,0 ,0 ,1 ,0 ,1 ,1 ,1 ,1 ,1 ,0 ,0 ,0 ,1 ,0 ],
+        [1 ,0 ,0 ,1 ,0 ,2 ,0 ,2 ,0 ,1 ,0 ,1 ,0 ,0 ,6 ,0 ,11,0 ,2 ,1 ,0 ],
+        [1 ,0 ,21,1 ,1 ,0 ,0 ,0 ,0 ,1 ,0 ,1 ,0 ,0 ,0 ,0 ,0 ,0 ,1 ,1 ,0 ],
+        [1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,0 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,0 ]]
 }
 
 object nivel_2 inherits Nivel
@@ -418,6 +428,7 @@ object nivel_4 inherits Nivel {
 object pantallaDeTitulo inherits Nivel {
 
     var opcionActual = 0
+    var canPress = true
     const menuButtons = ["menu_NewGame.png", "menu_Continue.png", "menu_Options.png", "menu_Exit.png"]
     const fondo = new Fondo(image = "menu_NewGame.png")
     
@@ -442,11 +453,14 @@ object pantallaDeTitulo inherits Nivel {
     }
 
     method aceptar() {
-        if(opcionActual == 0){
-            gestorNiveles.pasarNivel()
-        }
-        if (opcionActual == 3){
-            game.stop()
+        if (canPress){
+            if(opcionActual == 0){
+                gestorNiveles.pasarNivel()
+                canPress = false
+            }
+            if (opcionActual == 3){
+                game.stop()
+            }
         }
     }
 }

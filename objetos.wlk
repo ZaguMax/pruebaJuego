@@ -170,9 +170,9 @@ class Moneda inherits Objeto(nombre = "coin") {
 object contadorMonedas {
     var decenas = 0
     var unidades = 0   
-    const decenasVisual = new TileTransicion(image = "0.png", position = game.at(16, 9))
-    const unidadesVisual = new TileTransicion(image = "0.png", position = game.at(17, 9))
-    const monedasVisual = new TileTransicion(image = "x.png", position = game.at(14, 9))
+    const decenasVisual = new TileTransicion(image = "0.png", position = game.at(19, 10))
+    const unidadesVisual = new TileTransicion(image = "0.png", position = game.at(20, 10))
+    const monedasVisual = new TileTransicion(image = "x.png", position = game.at(17, 10))
 
     method cargar() {
         game.addVisual(decenasVisual)
@@ -199,13 +199,15 @@ class Portal inherits Objeto(nombre = "portal", image = "portal_1.png") {
     }
 
     method pisar() {
-        personaje.moviendose(true)
-        const tp = game.sound("tp_" + (1..2).anyOne() + ".mp3")
-        tp.volume(0.3)
-        if (!personaje.tpeado()) {
-            personaje.tpeado(true)
-            tp.play()
-            personaje.teletransportar(dirDestino.get(0), dirDestino.get(1))
+        if (personaje.position() == position){
+            personaje.moviendose(true)
+            const tp = game.sound("tp_" + (1..2).anyOne() + ".mp3")
+            tp.volume(0.3)
+            if (!personaje.tpeado()) {
+                personaje.tpeado(true)
+                tp.play()
+                personaje.teletransportar(dirDestino.get(0), dirDestino.get(1))
+            }
         }
     }
 
@@ -354,6 +356,7 @@ class Laser inherits Objeto(nombre = "laser", image = "laserOn.png") {
     var property modo = 1
     var property puedeCerrar = true
     var property direccion
+    var fueApagado = false
     var objetosEnRuta = []
     var casillasLaser = []
 
@@ -409,12 +412,24 @@ class Laser inherits Objeto(nombre = "laser", image = "laserOn.png") {
     }
 
     method abrir() {
+        const laserOff = game.sound("laserOff.mp3")
+        laserOff.volume(0.3)
+        laserOff.play()
         casillasLaser = []
         image = "laserOff_" + direccion + ".png"
         visualLaser.image("transparente.png")
+        fueApagado = true
     }
 
     method cerrar() {
+        if (fueApagado){
+            const laserOn = game.sound("laserOn.mp3")
+            laserOn.volume(0.3)
+            laserOn.play()
+            fueApagado = false
+        }
+    
+
     image = "laserOn_" + direccion + ".png"
     var dirLaser = "vertical"
     if (direccion == "der" || direccion == "izq") { dirLaser = "horizontal" }
@@ -445,4 +460,20 @@ class Laser inherits Objeto(nombre = "laser", image = "laserOn.png") {
     method estaEnLaser(pos) {
         return casillasLaser.any({ c => c.x() == pos.x() && c.y() == pos.y() })
     }
+}
+
+class Salida inherits Objeto(nombre = "salida", image = "salida_der.png"){
+
+    const direccion
+
+    method actualizarDireccion() {
+        image = "salida_" + direccion + ".png"
+    }
+
+    method pisar() {
+        personaje.movimiento(false)
+        gestorNiveles.pasarNivel()
+    }
+
+    method soltar() {} 
 }

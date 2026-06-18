@@ -9,8 +9,8 @@ import gestorAnimacion.*
 
 program rpg
 {
-    game.width(20)
-    game.height(10)
+    game.width(21)
+    game.height(11)
     game.cellSize(80)
 
     game.title("Mi RPG")
@@ -30,6 +30,7 @@ object mapaObjetos
     var property interactuables = []
     var property pisables = []
     var property activables = []
+    var property salidas = []
     
     var property enemigosActivos = gestorDeEnemigos.enemigosActivos() 
 
