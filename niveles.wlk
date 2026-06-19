@@ -147,7 +147,18 @@ object gestorNiveles
         if (celda == 20)    { self.crearLaser(x, y, "abj", "Cerrado")}
         if (celda == 21)    { self.crearSalida(x, y, "izq")}
         if (celda == 22)    { self.crearSalida(x, y, "der")}
+        if (celda == 23)    { self.crearAntorcha(x, y, "izq")}
+        if (celda == 24)    { self.crearAntorcha(x, y, "der")}
+        if (celda == 25)    { self.crearAntorcha(x, y, "arr")}
+        if (celda == 26)    { self.crearAntorcha(x, y, "abj")}
         if (celda == 67)    { self.crearSpawnPersonaje(x, y) }
+    }
+
+    method crearAntorcha(x, y, dir) {
+        const antorcha = new Antorcha(position = game.at(x,y), direccion = dir)
+        game.addVisual(antorcha)
+        antorcha.iniciarAntorcha()
+        mapaObjetos.paredes().add(antorcha)
     }
 
     method crearSalida(x, y, dir) {
@@ -163,7 +174,7 @@ object gestorNiveles
         if (estado == "Cerrado"){
             laser.abrir()
         }
-        self.crearPared(x, y)
+        mapaObjetos.paredes().add(laser)
         mapaObjetos.activables().add(laser)
     }
 
@@ -241,14 +252,6 @@ object gestorNiveles
             game.addVisual(personaje)
             personaje.position(game.at(x, y))
         }
-    }
-
-    method crearAntorcha(x, y)
-    {
-        juego.mapaObjetos.paredes().add(new Collision(position = game.at(x,y)))
-        const antorcha = new AntorchaArr(position = game.at(x,y))
-        game.addVisual(antorcha)
-        animadorGlobal.añadir(antorcha)
     }
 
     method crearMurcielago(x, y) {
@@ -353,7 +356,7 @@ object nivel_1 inherits Nivel
 
     override method mapaData() = [
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-        [1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,16,1 ,1 ,0 ,0 ,0 ,1 ,1 ,1 ,0 ],
+        [1 ,1 ,23,24,25,26,1 ,1 ,1 ,1 ,1 ,16,1 ,1 ,0 ,0 ,0 ,1 ,1 ,1 ,0 ],
         [1 ,0 ,0 ,3 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,1 ,1 ,1 ,0 ,0 ,1 ,0 ,1 ,0 ],
         [1 ,0 ,2 ,0 ,0 ,2 ,11,0 ,2 ,0 ,0 ,2 ,0 ,0 ,1 ,0 ,0 ,1 ,0 ,1 ,0 ],
         [1 ,0 ,0 ,11,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,13,1 ,0 ,0 ,1 ,2 ,1 ,0 ],

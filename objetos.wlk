@@ -58,18 +58,6 @@ class ObjetoAccionable inherits Objeto{
 
 class Collision inherits Objeto {}
 
-class AntorchaArr inherits Objeto(nombre = "AntorchaArr", image = "AntorchaArr_1.png") {
-    method iniciar() {
-        self.animarLoop(8, 100)
-    }
-}
-
-class AntorchaAbj inherits Objeto(nombre = "AntorchaAbj", image = "AntorchaAbj_1.png") {
-    method iniciar() {
-        self.animarLoop(8, 100)
-    }
-}
-
 class Pinchos inherits Objeto(nombre = "PinchosAbriendo", image = "PinchosCerrados.png") {
     var property modo = 1
     var property puedeCerrar = true
@@ -476,4 +464,15 @@ class Salida inherits Objeto(nombre = "salida", image = "salida_der.png"){
     }
 
     method soltar() {} 
+}
+
+class Antorcha inherits Objeto(nombre = "Antorcha", image = "Antorcha_abj_1"){
+
+    const direccion
+
+    method iniciarAntorcha(){
+        image = "Antorcha_" + direccion + "_1"
+        nombre = "Antorcha_" + direccion
+        self.animarLoop(8, 300)
+    }
 }
