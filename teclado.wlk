@@ -11,16 +11,18 @@ object controles {
     keyboard.z().onPressDo({personaje.interact()})
     keyboard.l().onPressDo({gestorNiveles.pasarNivel() })
     keyboard.s().onPressDo({game.stop()})
+    keyboard.r().onPressDo({gestorNiveles.reiniciarNivel()})
   }
 }
 
 object controlesMenu {
   method configurar() {
-    keyboard.right().onPressDo({pantallaDeTitulo.opcionSiguiente()})
-    keyboard.left().onPressDo({pantallaDeTitulo.opcionAnterior()})
-    keyboard.up().onPressDo({pantallaDeTitulo.opcionAnterior()})
-    keyboard.down().onPressDo({pantallaDeTitulo.opcionSiguiente()})
-    keyboard.enter().onPressDo({pantallaDeTitulo.aceptar()})
+    keyboard.right().onPressDo({ gestorMenu.menuActual().derecha() })
+    keyboard.left().onPressDo({ gestorMenu.menuActual().izquierda() })
+    keyboard.up().onPressDo({ gestorMenu.menuActual().arriba() })
+    keyboard.down().onPressDo({ gestorMenu.menuActual().abajo() })
+    keyboard.enter().onPressDo({ gestorMenu.menuActual().aceptar() })
+    keyboard.backspace().onPressDo({ gestorMenu.volver() })
   }
 }
 

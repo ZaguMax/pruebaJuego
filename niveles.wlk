@@ -30,6 +30,8 @@ object gestorNiveles
     var property nivelActual = 1
     const niveles = [null, pantallaDeTitulo, nivel_1, nivel_2, nivel_3, nivel_4]
     var property musicaActual = null
+    var property volumenMusica = 0.3
+    var property volumenEfectos = 0.3
 
     method pasarNivel() {
         nivelActual = nivelActual + 1 
@@ -48,6 +50,14 @@ object gestorNiveles
         gestorDeEnemigos.limpiarTodo()
 
         if(musicaActual != null) musicaActual.stop()
+    }
+
+    method reiniciarNivel(){
+        transition.active()
+    }
+
+    method actualizarVolumen() {
+        if (musicaActual != null) musicaActual.volume(volumenMusica)
     }
 
     method cargarNivelActual()
@@ -74,7 +84,7 @@ object gestorNiveles
         //musica
         musicaActual = game.sound(nivel.musicaNivel())
         musicaActual.shouldLoop(true)
-        musicaActual.volume(0.1)
+        musicaActual.volume(volumenMusica)
         game.schedule(1000, { musicaActual.play() })
 
         // personaje
@@ -348,24 +358,24 @@ object nivel_1 inherits Nivel
 {
     override method musicasFondo() = ["fondo1.mp3","fondo2.mp3","fondo3.mp3"]
 
-    override method botones() =    [new Button(position = game.at(12,1), listaObjetos = [3]),
-                                    new Button(position = game.at(8,1), listaObjetos = [4])]
+    override method botones() =    [new Button(position = game.at(12,1), listaObjetos = [0]),
+                                    new Button(position = game.at(8,1), listaObjetos = [0])]
 
     override method teletransportes() =[new Portal(position = game.at(13,7), dirDestino = [18,8]),
                                         new Portal(position = game.at(18,8), dirDestino = [13,7])]
 
     override method mapaData() = [
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
-        [1 ,1 ,23,24,25,26,1 ,1 ,1 ,1 ,1 ,16,1 ,1 ,0 ,0 ,0 ,1 ,1 ,1 ,0 ],
-        [1 ,0 ,0 ,3 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,1 ,1 ,1 ,0 ,0 ,1 ,0 ,1 ,0 ],
-        [1 ,0 ,2 ,0 ,0 ,2 ,11,0 ,2 ,0 ,0 ,2 ,0 ,0 ,1 ,0 ,0 ,1 ,0 ,1 ,0 ],
-        [1 ,0 ,0 ,11,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,13,1 ,0 ,0 ,1 ,2 ,1 ,0 ],
-        [1 ,67,0 ,0 ,0 ,0 ,0 ,0 ,11,1 ,15,1 ,1 ,1 ,0 ,0 ,0 ,1 ,6 ,1 ,0 ],
-        [1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,8 ,1 ,0 ,0 ,0 ,0 ,0 ,1 ,1 ,1 ,2 ,1 ,0 ],
-        [1 ,0 ,0 ,10,0 ,0 ,12,0 ,0 ,1 ,0 ,1 ,1 ,1 ,1 ,1 ,0 ,0 ,0 ,1 ,0 ],
-        [1 ,0 ,0 ,1 ,0 ,2 ,0 ,2 ,0 ,1 ,0 ,1 ,0 ,0 ,6 ,0 ,11,0 ,2 ,1 ,0 ],
-        [1 ,0 ,21,1 ,1 ,0 ,0 ,0 ,0 ,1 ,0 ,1 ,0 ,0 ,0 ,0 ,0 ,0 ,1 ,1 ,0 ],
-        [1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,0 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,0 ]]
+        [0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ],
+        [0 ,0 ,67,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ],
+        [0 ,1 ,0 ,0 ,0 ,0 ,11,0 ,0 ,0 ,0 ,13,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ],
+        [0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ],
+        [0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ],
+        [0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ],
+        [0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ],
+        [0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ],
+        [0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ],
+        [0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ]]
 }
 
 object nivel_2 inherits Nivel
@@ -429,41 +439,141 @@ object nivel_4 inherits Nivel {
 }
 
 object pantallaDeTitulo inherits Nivel {
-
     var opcionActual = 0
     var canPress = true
     const menuButtons = ["menu_NewGame.png", "menu_Continue.png", "menu_Options.png", "menu_Exit.png"]
     const fondo = new Fondo(image = "menu_NewGame.png")
-    
+
     override method musicasFondo() = ["menuMusic.mp3"]
     override method background() = fondo
 
-    method opcionSiguiente() {
-        opcionActual = opcionActual + 1
-        if (opcionActual > 3) {
-            opcionActual = 0
-        }
-        
-        fondo.image(menuButtons.get(opcionActual))
+    method entrar() { self.mostrarFondoMenu() }
+
+    method mostrarFondoMenu() { fondo.image(menuButtons.get(opcionActual)) }
+    method mostrarFondoVacio() { fondo.image("menu_Vacio.png") }
+
+    method derecha() { self.siguiente() }
+    method abajo()   { self.siguiente() }
+    method izquierda() { self.anterior() }
+    method arriba()    { self.anterior() }
+
+    method siguiente() {
+        opcionActual = (opcionActual + 1) % menuButtons.size()
+        self.mostrarFondoMenu()
     }
 
-    method opcionAnterior() {
-        opcionActual = opcionActual - 1
-        if (opcionActual < 0) {
-            opcionActual = 3
-        }
-        fondo.image(menuButtons.get(opcionActual))
+    method anterior() {
+        opcionActual = (opcionActual - 1 + menuButtons.size()) % menuButtons.size()
+        self.mostrarFondoMenu()
     }
 
     method aceptar() {
-        if (canPress){
-            if(opcionActual == 0){
-                gestorNiveles.pasarNivel()
-                canPress = false
-            }
-            if (opcionActual == 3){
-                game.stop()
-            }
+        if (canPress) {
+            if (opcionActual == 0) { gestorNiveles.pasarNivel(); canPress = false }
+            if (opcionActual == 1) { gestorMenu.abrir(levelSelector) }
+            if (opcionActual == 2) { gestorMenu.abrir(volumeOptions) }
+            if (opcionActual == 3) { game.stop() }
         }
+    }
+}
+
+object volumeOptions {
+    var opcionActual = 0
+    const volumenMenu = new TileTransicion(position = game.at(7, 5), image = "menu_Volumen.png")
+    const sliders = [sliderMusica, sliderEfectos]
+
+    method entrar() {
+        pantallaDeTitulo.mostrarFondoVacio()
+        sliders.forEach({ s => game.addVisual(s); game.addVisual(s.tileSeleccion()) })
+        sliders.get(opcionActual).activar()
+        game.addVisual(volumenMenu)
+    }
+
+    method volver() {
+        sliders.forEach({ s => game.removeVisual(s); game.removeVisual(s.tileSeleccion()) })
+        game.removeVisual(volumenMenu)
+    }
+
+    method arriba() { self.moverSeleccion(-1) }
+    method abajo()  { self.moverSeleccion(1) }
+
+    method moverSeleccion(direccion) {
+        sliders.get(opcionActual).desactivar()
+        opcionActual = (opcionActual + direccion + sliders.size()) % sliders.size()
+        sliders.get(opcionActual).activar()
+    }
+
+    method derecha()   { sliders.get(opcionActual).subir() }
+    method izquierda() { sliders.get(opcionActual).bajar() }
+
+    method aceptar() { gestorMenu.volver() }
+}
+
+class Slider {
+    var nivel = 2
+    const property nombre
+    const property position
+    const niveles = [0, 25, 50, 75, 100]
+
+    method prefijo()
+    method tileSeleccion()
+
+    method image() = self.prefijo() + "_" + niveles.get(nivel) + ".png"
+
+    method subir() {
+        nivel = (nivel + 1).min(4)
+        self.aplicar()
+    }
+
+    method bajar() {
+        nivel = (nivel - 1).max(0)
+        self.aplicar()
+    }
+
+    method volumen() = nivel / 4.0
+
+    method activar()    { self.tileSeleccion().image(self.prefijo() + "_Select.png") }
+    method desactivar() { self.tileSeleccion().image("transparente.png") }
+
+    method aplicar()
+}
+
+object sliderMusica inherits Slider(nombre = "Música", position = game.at(7, 4)) {
+    const tileSeleccion = new TileTransicion(position = game.at(7, 4), image = "transparente.png")
+
+    override method prefijo() = "musica"
+    override method tileSeleccion() = tileSeleccion
+
+    override method aplicar() {
+        gestorNiveles.volumenMusica(self.volumen())
+        gestorNiveles.actualizarVolumen()
+    }
+}
+
+object sliderEfectos inherits Slider(nombre = "Efectos", position = game.at(7, 3)) {
+    const tileSeleccion = new TileTransicion(position = game.at(7, 3), image = "transparente.png")
+
+    override method prefijo() = "efectos"
+    override method tileSeleccion() = tileSeleccion
+
+    override method aplicar() { gestorNiveles.volumenEfectos(self.volumen()) }
+}
+
+object levelSelector {
+
+}
+
+object gestorMenu {
+    var property menuActual = pantallaDeTitulo
+
+    method abrir(menu) {
+        menuActual = menu
+        menu.entrar()
+    }
+
+    method volver() {
+        menuActual.volver()
+        menuActual = pantallaDeTitulo
+        pantallaDeTitulo.entrar()
     }
 }

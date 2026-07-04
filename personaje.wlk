@@ -221,7 +221,7 @@ object personaje {
                         if(mapaObjetos.activables()
                         .filter({ e => e.nombre() == "laser" })
                         .any({ e => e.estaEnLaser(game.at(posDestinoX, posDestinoY)) })){
-                        //
+                        //muelte
                         }
 
                         game.removeVisual(tileA)
@@ -308,7 +308,6 @@ object spawn {
                 personaje.image("pj_abj.png")
                 personaje.position(game.at(posXPersonaje, posYPersonaje))
 
-                personaje.moviendose(false)
                 spawning = false
                 frameActual = 1 
             }
